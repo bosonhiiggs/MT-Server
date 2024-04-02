@@ -20,6 +20,7 @@ class Course(models.Model):
     price = models.DecimalField(default=0, max_digits=10, decimal_places=2)
     create_date = models.DateTimeField(auto_now_add=True)
     logo = models.ImageField(null=True, blank=True, upload_to=course_logo_directory_path)
+    approval = models.BooleanField(default=False)
 
     if TYPE_CHECKING:
         objects: Manager
