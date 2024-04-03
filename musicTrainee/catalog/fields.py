@@ -13,12 +13,13 @@ class OrderField(models.PositiveIntegerField):
             try:
                 qs = self.model.objects.all()
                 if self.for_fields:
-                    # Фильтровать по объектам с одинаковыми значениями
-                    # полей для моделей "for_fields"
+                    # фильтровать по объектам с
+                    # одинаковыми значениями полей
+                    # для полей в "for_fields"
                     query = {field: getattr(model_instance, field) \
                              for field in self.for_fields}
-                    qs = qs.fiter(*query)
-                # Получить порядок последней позиции
+                    qs = qs.filter(**query)
+                # получить порядок последней позиции
                 last_item = qs.latest(self.attname)
                 value = last_item.order + 1
             except ObjectDoesNotExist:
