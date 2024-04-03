@@ -24,3 +24,6 @@ class Course(models.Model):
 
     if TYPE_CHECKING:
         objects: Manager
+
+
+
