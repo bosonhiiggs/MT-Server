@@ -120,12 +120,38 @@ class Text(ItemBase):
 
 
 class File(ItemBase):
-    content = models.FileField(upload_to=course_files_directory_path)
+    file = models.FileField(upload_to=course_files_directory_path)
 
 
 class Image(ItemBase):
-    content = models.FileField(upload_to=course_images_directory_path)
+    file = models.FileField(upload_to=course_images_directory_path)
 
 
 class Video(ItemBase):
-    content = models.URLField()
+    url = models.URLField()
+
+
+class Question(ItemBase):
+    text = models.TextField(max_length=3000, verbose_name="text_question")
+
+    def __str__(self):
+        return self.text
+
+
+class Answer(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    text = models.CharField(max_length=300)
+
+    def __str__(self):
+        return self.text
+
+
+def course_tasks_directory_path(instance: "Course", filename: str):
+    return "courses/course_{pk}/tasks/{filename}".format(
+        pk=instance.pk,
+        filename=filename
+    )
+
+
+class Task(ItemBase):
+    file = models.FileField(blank=True, upload_to=course_tasks_directory_path)
