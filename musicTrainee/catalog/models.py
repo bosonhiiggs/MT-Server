@@ -10,19 +10,52 @@ from .fields import OrderField
 
 
 def course_logo_directory_path(instance: "Course", filename: str) -> str:
+    """
+    Функция для описания пути логотипа курса
+    :param instance: выбранный курс
+    :param filename: название файла
+    :return: путь для логотипа
+    """
     return "courses/course_{pk}/logo/{filename}".format(
         pk=instance.pk,
         filename=filename
     )
 
 
+def course_images_directory_path(instance: "Course", filename: str) -> str:
+    """
+    Функция для описания пути изображения для занятий
+    :param instance: выбранный курс
+    :param filename: название файла
+    :return: путь для изображений
+    """
+    return "courses/course_{pk}/images/{filename}".format(
+        pk=instance.pk,
+        filename=filename
+    )
+
+
+def course_files_directory_path(instance: "Course", filename: str) -> str:
+    """
+    Функция для описания пути прикладных файлов
+    :param instance: выбранный курс
+    :param filename: название файла
+    :return: путь для файлов
+    """
+    return "courses/course_{pk}/files/{filename}".format(
+        pk=instance.pk,
+        filename=filename
+    )
+
+
 class Course(models.Model):
-    owner = models.ForeignKey(User, related_name="courses_created", on_delete=models.CASCADE)
+    creator = models.ForeignKey(User, related_name="courses_creator", on_delete=models.CASCADE)
+    owner = models.ManyToManyField(User, blank=True, related_name="courses_owner")
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
     description = models.TextField()
     price = models.DecimalField(default=0, max_digits=10, decimal_places=2)
-    create_date = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
     logo = models.ImageField(null=True, blank=True, upload_to=course_logo_directory_path)
     approval = models.BooleanField(default=False)
 
@@ -34,6 +67,9 @@ class Module(models.Model):
     course = models.ForeignKey(Course, related_name="modules", on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     order = OrderField(blank=True, for_fields=['course'])
+
+    if TYPE_CHECKING:
+        objects: Manager
 
     def __str__(self):
         return f'{self.order}. {self.title}'
@@ -80,22 +116,8 @@ class Text(ItemBase):
     content = models.TextField()
 
 
-def course_files_directory_path(instance: Course, filename: str) -> str:
-    return "courses/course_{pk}/files/{filename}".format(
-        pk=instance.pk,
-        filename=filename
-    )
-
-
 class File(ItemBase):
     file = models.FileField(upload_to=course_files_directory_path)
-
-
-def course_images_directory_path(instance: Course, filename: str) -> str:
-    return "courses/course_{pk}/images/{filename}".format(
-        pk=instance.pk,
-        filename=filename
-    )
 
 
 class Image(ItemBase):
