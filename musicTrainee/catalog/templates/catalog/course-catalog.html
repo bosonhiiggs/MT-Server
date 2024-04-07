@@ -11,17 +11,40 @@
     <h1>Какие-то курсы</h1>
     <ul>
         {% for course in courses %}
-        	<li>{{ course }}</li>
-
-            <li>{{ course.title }}</li>
-            <li>{{ course.owner }}</li>
+        	<li>{{ course.pk }}</li>
+        	<li>{{ course.title }}</li>
+            <li><img src="{{ course.logo.url }}" alt="Not found logo"></li>
+            <li>{{ course.creator }}</li>
             <li>{{ course.description }}</li>
-            <li>{{ course.price }}</li>
-            <li>{{ course.modules }}</li>
+            <li>{{ course.price }} р.</li>
+{#            <li>{{ course.modules.all }}</li>#}
+            {% for module in course.modules.all %}
+                Модули:
+                <ul>
+            	    <li>{{ module.title }}</li>
+
+{#                    <li>{{ module.contents.all }}</li>#}
+                    <ul>
+                        {% for content in module.contents.all %}
+
+                            <li>{{ content.item.title }}</li>
+                            <li>{{ content.item.content }}</li>
+
+                        {% endfor %}
+                    </ul>
+
+                </ul>
+            {% endfor %}
+
+            {% for owner in course.owner.all %}
+                Владельцы:
+                <ul>
+                    <li>{{ owner }}</li>
+                </ul>
+            {% endfor %}
+
             <li>{{ course.approval }}</li>
-
             <br>
-
         {% endfor %}
     </ul>
 </body>

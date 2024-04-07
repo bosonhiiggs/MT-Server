@@ -59,6 +59,9 @@ class Course(models.Model):
     logo = models.ImageField(null=True, blank=True, upload_to=course_logo_directory_path)
     approval = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"{self.title}"
+
     if TYPE_CHECKING:
         objects: Manager
 
@@ -117,12 +120,12 @@ class Text(ItemBase):
 
 
 class File(ItemBase):
-    file = models.FileField(upload_to=course_files_directory_path)
+    content = models.FileField(upload_to=course_files_directory_path)
 
 
 class Image(ItemBase):
-    file = models.FileField(upload_to=course_images_directory_path)
+    content = models.FileField(upload_to=course_images_directory_path)
 
 
 class Video(ItemBase):
-    url = models.URLField()
+    content = models.URLField()
