@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course, Content, Text, Module, File, Image, Video, Answer, Question
+from .models import Course, Content, Text, Module, File, Image, Video, Answer, Question, Task
 
 
 @admin.register(Course)
@@ -43,11 +43,18 @@ class TextAdmin(admin.ModelAdmin):
 class QuestionsInline(admin.TabularInline):
     model = Answer
 
+
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
+    inlines = [QuestionsInline]
     list_display = ['title', 'text']
 
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
     list_display = ['question', 'text']
+
+
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    list_display = ['title', 'file', ]
