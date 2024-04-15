@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Courses</title>
+</head>
+<body>
+    <h1>{{ course }}</h1>
+
+    <ul>
+        <li><b>Название курса:</b>{{ course.title }}</li>
+        <li><img src="{{ course.logo.url }}" alt="Not found logo"></li>
+        <li><b>Описание:</b><br>{{ course.description }}</li>
+
+        <li><b><a href="{% url 'catalog:course-modules' slug=course.slug %}">Модули</a></b></li>
+
+        <li><b>Цена: </b>{{ course.price }}р.</li>
+        <li><b>Создатель:</b> {{ course.creator }}</li>
+    </ul>
+
+</body>
+</html>

@@ -91,6 +91,8 @@ class Content(models.Model):
                                                  'video',
                                                  'image',
                                                  'file',
+                                                 'question',
+                                                 'task',
                                              )
                                      }
                                      )
@@ -155,4 +157,5 @@ def course_tasks_directory_path(instance: "Course", filename: str):
 
 
 class Task(ItemBase):
+    description = models.TextField()
     file = models.FileField(blank=True, upload_to=course_tasks_directory_path)
