@@ -11,7 +11,8 @@
     <h1>{{ objects.course }}</h1>
 
     {% for module in objects.modules %}
-    	<h2>{{ module.title }}</h2>
+{#        {{ module }}#}
+    	<h2><a href="#">{{ module }}</a></h2>
     {% endfor %}
 
 

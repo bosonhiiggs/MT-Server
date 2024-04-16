@@ -100,6 +100,9 @@ class Content(models.Model):
     item = GenericForeignKey('content_type', 'object_id')
     order = OrderField(blank=True, for_fields=['module'])
 
+    if TYPE_CHECKING:
+        objects: Manager
+
     class Meta:
         ordering = ['order']
 
