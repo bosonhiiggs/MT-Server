@@ -1,5 +1,5 @@
 ﻿from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 
 from .models import Course, Module, Content
@@ -55,15 +55,26 @@ class CourseModules(ListView):
 
 
 class CourseModuleDetails(DetailView):
-    def get_object(self, queryset=None):
-        # course_slug = self.request.path.split('/')
-        course_slug = self.request.path.split('/')[2]
-        course_content_pk = self.request.path.split('/')[4]
-        # print(course_slug)
-        # print(course_content_pk)
-        queryset = Content.objects.filter(pk=course_content_pk).all()
-        return queryset
-
-    context_object_name = "object"
+    # model = Module
+    context_object_name = "course"
     template_name = "catalog/course-modules-details.html"
+
+    # def get_object(self, queryset=None):
+    #     course_content_pk = self.request.path.split('/')[4]
+    #     queryset = Content.objects.filter(pk=course_content_pk).all()
+    #     return queryset
+
+    def get_object(self, queryset=None):
+        course = get_object_or_404(Course, slug=self.kwargs["slug"])
+        # module = get_object_or_404(Module, pk=self.kwargs["pk"], course=course)
+        return course
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        course = self.object
+        content = get_object_or_404(Content, pk=self.kwargs['pk'], module__course=course)
+        context['content'] = content
+        return context
+
+
 

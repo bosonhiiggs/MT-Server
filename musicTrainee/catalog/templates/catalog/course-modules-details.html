@@ -9,9 +9,20 @@
 </head>
 <body>
 
-    {% for content in object %}
-    	{{ content.item }}
-    {% endfor %}
+
+<h1>{{ content.item }}</h1>
+
+{% if content.item.content %}
+    <p>{{ content.item.content }}</p>
+{#{% elif content.item.text %}#}
+{% endif %}
+{#{{ content.item.answer_set.all }}#}
+{% for answer in content.item.answer_set.all %}
+	<p>{{ answer }}</p>
+{% endfor %}
+
+
+
 
 
 </body>
