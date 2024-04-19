@@ -8,7 +8,11 @@
     <title>Modules</title>
 </head>
 <body>
-    {{ module }}
+
+    {% for content in object %}
+    	{{ content.item }}
+    {% endfor %}
+
 
 </body>
 </html>

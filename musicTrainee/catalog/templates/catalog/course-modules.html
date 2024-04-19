@@ -10,9 +10,12 @@
 <body>
     <h1>{{ objects.course }}</h1>
 
-    {% for module in objects.modules %}
-{#        {{ module }}#}
-    	<h2><a href="#">{{ module }}</a></h2>
+    {% for module, contents in objects.content.items %}
+    	<h2>{{ module.title }}</h2>
+        {% for content in contents %}
+            <h3><a href="{% url 'catalog:course-modules-details' slug=objects.course.slug pk=content.pk %}">{{ content.item }}</a></h3>
+        {% endfor %}
+
     {% endfor %}
 
 
