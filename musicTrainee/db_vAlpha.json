@@ -1,0 +1,1324 @@
+[
+  {
+    "model": "admin.logentry",
+    "pk": 1,
+    "fields": {
+      "action_time": "2024-04-07T09:55:53.041Z",
+      "user": 1,
+      "content_type": 4,
+      "object_id": "2",
+      "object_repr": "Den",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 2,
+    "fields": {
+      "action_time": "2024-04-07T09:55:56.479Z",
+      "user": 1,
+      "content_type": 4,
+      "object_id": "2",
+      "object_repr": "Den",
+      "action_flag": 2,
+      "change_message": "[]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 3,
+    "fields": {
+      "action_time": "2024-04-07T09:56:38.533Z",
+      "user": 1,
+      "content_type": 10,
+      "object_id": "1",
+      "object_repr": "Занятие по скрипке №1",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 4,
+    "fields": {
+      "action_time": "2024-04-07T09:56:55.888Z",
+      "user": 1,
+      "content_type": 10,
+      "object_id": "2",
+      "object_repr": "Занятие по скрипке №2",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 5,
+    "fields": {
+      "action_time": "2024-04-07T09:58:37.659Z",
+      "user": 1,
+      "content_type": 7,
+      "object_id": "1",
+      "object_repr": "Course object (1)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 6,
+    "fields": {
+      "action_time": "2024-04-07T09:59:37.445Z",
+      "user": 1,
+      "content_type": 12,
+      "object_id": "1",
+      "object_repr": "0. Занятие по скрипке №1",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 7,
+    "fields": {
+      "action_time": "2024-04-07T10:09:35.543Z",
+      "user": 1,
+      "content_type": 13,
+      "object_id": "1",
+      "object_repr": "Content object (1)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 8,
+    "fields": {
+      "action_time": "2024-04-07T10:09:50.029Z",
+      "user": 1,
+      "content_type": 13,
+      "object_id": "2",
+      "object_repr": "Content object (2)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 9,
+    "fields": {
+      "action_time": "2024-04-07T10:30:26.783Z",
+      "user": 1,
+      "content_type": 12,
+      "object_id": "1",
+      "object_repr": "0. Модуль по скрипке №1",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Title\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 10,
+    "fields": {
+      "action_time": "2024-04-07T10:35:42.448Z",
+      "user": 1,
+      "content_type": 7,
+      "object_id": "2",
+      "object_repr": "Курс по гитаре",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 11,
+    "fields": {
+      "action_time": "2024-04-07T10:36:14.919Z",
+      "user": 1,
+      "content_type": 12,
+      "object_id": "2",
+      "object_repr": "0. Модуль №1 по гитаре",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 12,
+    "fields": {
+      "action_time": "2024-04-07T10:36:26.120Z",
+      "user": 1,
+      "content_type": 12,
+      "object_id": "3",
+      "object_repr": "1. Модуль №2 на гитаре",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 13,
+    "fields": {
+      "action_time": "2024-04-07T10:37:08.081Z",
+      "user": 1,
+      "content_type": 10,
+      "object_id": "3",
+      "object_repr": "Занятие на гитаре №1",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 14,
+    "fields": {
+      "action_time": "2024-04-07T10:37:30.730Z",
+      "user": 1,
+      "content_type": 10,
+      "object_id": "4",
+      "object_repr": "Занятие на гитаре №2",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 15,
+    "fields": {
+      "action_time": "2024-04-07T10:37:49.074Z",
+      "user": 1,
+      "content_type": 10,
+      "object_id": "5",
+      "object_repr": "Занятие на гитаре №3",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 16,
+    "fields": {
+      "action_time": "2024-04-07T10:38:36.926Z",
+      "user": 1,
+      "content_type": 13,
+      "object_id": "3",
+      "object_repr": "Content object (3)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 17,
+    "fields": {
+      "action_time": "2024-04-07T10:38:43.535Z",
+      "user": 1,
+      "content_type": 13,
+      "object_id": "4",
+      "object_repr": "Content object (4)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 18,
+    "fields": {
+      "action_time": "2024-04-07T10:38:52.686Z",
+      "user": 1,
+      "content_type": 13,
+      "object_id": "5",
+      "object_repr": "Content object (5)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 19,
+    "fields": {
+      "action_time": "2024-04-07T10:46:41.579Z",
+      "user": 1,
+      "content_type": 7,
+      "object_id": "2",
+      "object_repr": "Курс по гитаре",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Owner\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 20,
+    "fields": {
+      "action_time": "2024-04-07T10:46:45.675Z",
+      "user": 1,
+      "content_type": 7,
+      "object_id": "2",
+      "object_repr": "Курс по гитаре",
+      "action_flag": 2,
+      "change_message": "[]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 21,
+    "fields": {
+      "action_time": "2024-04-07T13:10:57.245Z",
+      "user": 1,
+      "content_type": 14,
+      "object_id": "1",
+      "object_repr": "Сколько струн у гитары?",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 22,
+    "fields": {
+      "action_time": "2024-04-07T13:11:14.058Z",
+      "user": 1,
+      "content_type": 16,
+      "object_id": "1",
+      "object_repr": "1.",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 23,
+    "fields": {
+      "action_time": "2024-04-07T13:11:20.614Z",
+      "user": 1,
+      "content_type": 16,
+      "object_id": "1",
+      "object_repr": "3",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Text\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 24,
+    "fields": {
+      "action_time": "2024-04-07T13:11:25.550Z",
+      "user": 1,
+      "content_type": 16,
+      "object_id": "2",
+      "object_repr": "6",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 25,
+    "fields": {
+      "action_time": "2024-04-07T13:13:03.657Z",
+      "user": 1,
+      "content_type": 16,
+      "object_id": "2",
+      "object_repr": "6",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Is true\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 26,
+    "fields": {
+      "action_time": "2024-04-07T13:14:08.139Z",
+      "user": 1,
+      "content_type": 14,
+      "object_id": "1",
+      "object_repr": "Сколько струн у гитары?",
+      "action_flag": 2,
+      "change_message": "[]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 27,
+    "fields": {
+      "action_time": "2024-04-10T07:08:28.177Z",
+      "user": 1,
+      "content_type": 12,
+      "object_id": "4",
+      "object_repr": "1. Модуль с заданиями по скрипке",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 28,
+    "fields": {
+      "action_time": "2024-04-10T08:32:08.063Z",
+      "user": 1,
+      "content_type": 4,
+      "object_id": "3",
+      "object_repr": "John",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 1,
+    "fields": {
+      "name": "Can add log entry",
+      "content_type": 1,
+      "codename": "add_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 2,
+    "fields": {
+      "name": "Can change log entry",
+      "content_type": 1,
+      "codename": "change_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 3,
+    "fields": {
+      "name": "Can delete log entry",
+      "content_type": 1,
+      "codename": "delete_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 4,
+    "fields": {
+      "name": "Can view log entry",
+      "content_type": 1,
+      "codename": "view_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 5,
+    "fields": {
+      "name": "Can add permission",
+      "content_type": 2,
+      "codename": "add_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 6,
+    "fields": {
+      "name": "Can change permission",
+      "content_type": 2,
+      "codename": "change_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 7,
+    "fields": {
+      "name": "Can delete permission",
+      "content_type": 2,
+      "codename": "delete_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 8,
+    "fields": {
+      "name": "Can view permission",
+      "content_type": 2,
+      "codename": "view_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 9,
+    "fields": {
+      "name": "Can add group",
+      "content_type": 3,
+      "codename": "add_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10,
+    "fields": {
+      "name": "Can change group",
+      "content_type": 3,
+      "codename": "change_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 11,
+    "fields": {
+      "name": "Can delete group",
+      "content_type": 3,
+      "codename": "delete_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 12,
+    "fields": {
+      "name": "Can view group",
+      "content_type": 3,
+      "codename": "view_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 13,
+    "fields": {
+      "name": "Can add user",
+      "content_type": 4,
+      "codename": "add_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 14,
+    "fields": {
+      "name": "Can change user",
+      "content_type": 4,
+      "codename": "change_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 15,
+    "fields": {
+      "name": "Can delete user",
+      "content_type": 4,
+      "codename": "delete_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 16,
+    "fields": {
+      "name": "Can view user",
+      "content_type": 4,
+      "codename": "view_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 17,
+    "fields": {
+      "name": "Can add content type",
+      "content_type": 5,
+      "codename": "add_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 18,
+    "fields": {
+      "name": "Can change content type",
+      "content_type": 5,
+      "codename": "change_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 19,
+    "fields": {
+      "name": "Can delete content type",
+      "content_type": 5,
+      "codename": "delete_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 20,
+    "fields": {
+      "name": "Can view content type",
+      "content_type": 5,
+      "codename": "view_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 21,
+    "fields": {
+      "name": "Can add session",
+      "content_type": 6,
+      "codename": "add_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 22,
+    "fields": {
+      "name": "Can change session",
+      "content_type": 6,
+      "codename": "change_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 23,
+    "fields": {
+      "name": "Can delete session",
+      "content_type": 6,
+      "codename": "delete_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 24,
+    "fields": {
+      "name": "Can view session",
+      "content_type": 6,
+      "codename": "view_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 25,
+    "fields": {
+      "name": "Can add course",
+      "content_type": 7,
+      "codename": "add_course"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 26,
+    "fields": {
+      "name": "Can change course",
+      "content_type": 7,
+      "codename": "change_course"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 27,
+    "fields": {
+      "name": "Can delete course",
+      "content_type": 7,
+      "codename": "delete_course"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 28,
+    "fields": {
+      "name": "Can view course",
+      "content_type": 7,
+      "codename": "view_course"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 29,
+    "fields": {
+      "name": "Can add file",
+      "content_type": 8,
+      "codename": "add_file"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 30,
+    "fields": {
+      "name": "Can change file",
+      "content_type": 8,
+      "codename": "change_file"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 31,
+    "fields": {
+      "name": "Can delete file",
+      "content_type": 8,
+      "codename": "delete_file"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 32,
+    "fields": {
+      "name": "Can view file",
+      "content_type": 8,
+      "codename": "view_file"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 33,
+    "fields": {
+      "name": "Can add image",
+      "content_type": 9,
+      "codename": "add_image"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 34,
+    "fields": {
+      "name": "Can change image",
+      "content_type": 9,
+      "codename": "change_image"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 35,
+    "fields": {
+      "name": "Can delete image",
+      "content_type": 9,
+      "codename": "delete_image"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 36,
+    "fields": {
+      "name": "Can view image",
+      "content_type": 9,
+      "codename": "view_image"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 37,
+    "fields": {
+      "name": "Can add text",
+      "content_type": 10,
+      "codename": "add_text"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 38,
+    "fields": {
+      "name": "Can change text",
+      "content_type": 10,
+      "codename": "change_text"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 39,
+    "fields": {
+      "name": "Can delete text",
+      "content_type": 10,
+      "codename": "delete_text"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 40,
+    "fields": {
+      "name": "Can view text",
+      "content_type": 10,
+      "codename": "view_text"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 41,
+    "fields": {
+      "name": "Can add video",
+      "content_type": 11,
+      "codename": "add_video"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 42,
+    "fields": {
+      "name": "Can change video",
+      "content_type": 11,
+      "codename": "change_video"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 43,
+    "fields": {
+      "name": "Can delete video",
+      "content_type": 11,
+      "codename": "delete_video"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 44,
+    "fields": {
+      "name": "Can view video",
+      "content_type": 11,
+      "codename": "view_video"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 45,
+    "fields": {
+      "name": "Can add module",
+      "content_type": 12,
+      "codename": "add_module"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 46,
+    "fields": {
+      "name": "Can change module",
+      "content_type": 12,
+      "codename": "change_module"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 47,
+    "fields": {
+      "name": "Can delete module",
+      "content_type": 12,
+      "codename": "delete_module"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 48,
+    "fields": {
+      "name": "Can view module",
+      "content_type": 12,
+      "codename": "view_module"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 49,
+    "fields": {
+      "name": "Can add content",
+      "content_type": 13,
+      "codename": "add_content"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 50,
+    "fields": {
+      "name": "Can change content",
+      "content_type": 13,
+      "codename": "change_content"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 51,
+    "fields": {
+      "name": "Can delete content",
+      "content_type": 13,
+      "codename": "delete_content"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 52,
+    "fields": {
+      "name": "Can view content",
+      "content_type": 13,
+      "codename": "view_content"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 53,
+    "fields": {
+      "name": "Can add question",
+      "content_type": 14,
+      "codename": "add_question"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 54,
+    "fields": {
+      "name": "Can change question",
+      "content_type": 14,
+      "codename": "change_question"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 55,
+    "fields": {
+      "name": "Can delete question",
+      "content_type": 14,
+      "codename": "delete_question"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 56,
+    "fields": {
+      "name": "Can view question",
+      "content_type": 14,
+      "codename": "view_question"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 57,
+    "fields": {
+      "name": "Can add task",
+      "content_type": 15,
+      "codename": "add_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 58,
+    "fields": {
+      "name": "Can change task",
+      "content_type": 15,
+      "codename": "change_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 59,
+    "fields": {
+      "name": "Can delete task",
+      "content_type": 15,
+      "codename": "delete_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 60,
+    "fields": {
+      "name": "Can view task",
+      "content_type": 15,
+      "codename": "view_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 61,
+    "fields": {
+      "name": "Can add answer",
+      "content_type": 16,
+      "codename": "add_answer"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 62,
+    "fields": {
+      "name": "Can change answer",
+      "content_type": 16,
+      "codename": "change_answer"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 63,
+    "fields": {
+      "name": "Can delete answer",
+      "content_type": 16,
+      "codename": "delete_answer"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 64,
+    "fields": {
+      "name": "Can view answer",
+      "content_type": 16,
+      "codename": "view_answer"
+    }
+  },
+  {
+    "model": "auth_user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$720000$NiU95QDTEhGVZNpuYyRFVp$eNa/ICBt9Gbg0u89g86mH4z2XKMjIyaOxl3GVVhXKMs=",
+      "last_login": "2024-04-19T08:51:25.953Z",
+      "is_superuser": true,
+      "username": "admin",
+      "first_name": "",
+      "last_name": "",
+      "email": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2024-04-07T09:49:55.565Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth_user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$720000$aMO8wxzNVP96JK1q56UMqk$t8CrcylQjMtH8Zsv81U+DuAaACGG9ZEqV5A4633GhPU=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "Den",
+      "first_name": "",
+      "last_name": "",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-04-07T09:55:52Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth_user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$720000$RZfpHLBa9LrNT8Z3OgL0ts$mzRjBCT6Ts2ESMalDtoiEonCW8NalSlO96z6dv4H320=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "John",
+      "first_name": "",
+      "last_name": "",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-04-10T08:32:07.769Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 1,
+    "fields": {
+      "app_label": "admin",
+      "model": "logentry"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 2,
+    "fields": {
+      "app_label": "auth",
+      "model": "permission"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 3,
+    "fields": {
+      "app_label": "auth",
+      "model": "group"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 4,
+    "fields": {
+      "app_label": "auth",
+      "model": "user"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 5,
+    "fields": {
+      "app_label": "contenttypes",
+      "model": "contenttype"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 6,
+    "fields": {
+      "app_label": "sessions",
+      "model": "session"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 7,
+    "fields": {
+      "app_label": "catalog",
+      "model": "course"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 8,
+    "fields": {
+      "app_label": "catalog",
+      "model": "file"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 9,
+    "fields": {
+      "app_label": "catalog",
+      "model": "image"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 10,
+    "fields": {
+      "app_label": "catalog",
+      "model": "text"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 11,
+    "fields": {
+      "app_label": "catalog",
+      "model": "video"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 12,
+    "fields": {
+      "app_label": "catalog",
+      "model": "module"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 13,
+    "fields": {
+      "app_label": "catalog",
+      "model": "content"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 14,
+    "fields": {
+      "app_label": "catalog",
+      "model": "question"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 15,
+    "fields": {
+      "app_label": "catalog",
+      "model": "task"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 16,
+    "fields": {
+      "app_label": "catalog",
+      "model": "answer"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "2hnn2x50d9yecb4qlxcxpf2em37rspya",
+    "fields": {
+      "session_data": ".eJxVjcEOwiAQRP-FsyFQpIBH734D2WUXqRpISnsy_rtt0oNe572ZeYsI61Li2nmOE4mL0OL0myGkJ9cd0APqvcnU6jJPKHdFHrTLWyN-XQ_3b6BAL1sbB3LgrdOeQRN4MiEFHNGb4ey8sVZpCDCqpBwyWs82AxqnOG8fWWnx-QLmiDhY:1rtPDc:n50Hwm-hiFsIJW_csuPpMw4zbo_jxq4nUKBS6SM4sYQ",
+      "expire_date": "2024-04-21T09:53:44.298Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "nu9ybptd6hp8x7r398l50h3i5cgrgz3z",
+    "fields": {
+      "session_data": ".eJxVjcEOwiAQRP-FsyFQpIBH734D2WUXqRpISnsy_rtt0oNe572ZeYsI61Li2nmOE4mL0OL0myGkJ9cd0APqvcnU6jJPKHdFHrTLWyN-XQ_3b6BAL1sbB3LgrdOeQRN4MiEFHNGb4ey8sVZpCDCqpBwyWs82AxqnOG8fWWnx-QLmiDhY:1rxjxt:NGqMJepr8R2w9CCyZ6kJfV3Y0BygzY9BUumW_y5iCJc",
+      "expire_date": "2024-05-03T08:51:25.956Z"
+    }
+  },
+  {
+    "model": "catalog.course",
+    "pk": 1,
+    "fields": {
+      "creator": 1,
+      "title": "Курс по скрипке",
+      "slug": "kurs-po-skripke",
+      "description": "Это лучший курс по скрипке во всем мире!",
+      "price": "2000.00",
+      "created": "2024-04-07T09:58:37.657Z",
+      "logo": "courses/course_None/logo/14092012.jpg",
+      "approval": false,
+      "owner": []
+    }
+  },
+  {
+    "model": "catalog.course",
+    "pk": 2,
+    "fields": {
+      "creator": 1,
+      "title": "Курс по гитаре",
+      "slug": "kurs-po-gitare",
+      "description": "Восхитительный курс по гитаре",
+      "price": "1000.00",
+      "created": "2024-04-07T10:35:42.444Z",
+      "logo": "courses/course_None/logo/ab6e3841b97b548de15c8c4144d6dff9.png",
+      "approval": false,
+      "owner": [
+        2
+      ]
+    }
+  },
+  {
+    "model": "catalog.module",
+    "pk": 1,
+    "fields": {
+      "course": 1,
+      "title": "Модуль по скрипке №1",
+      "order": 0
+    }
+  },
+  {
+    "model": "catalog.module",
+    "pk": 2,
+    "fields": {
+      "course": 2,
+      "title": "Модуль №1 по гитаре",
+      "order": 0
+    }
+  },
+  {
+    "model": "catalog.module",
+    "pk": 3,
+    "fields": {
+      "course": 2,
+      "title": "Модуль №2 на гитаре",
+      "order": 1
+    }
+  },
+  {
+    "model": "catalog.module",
+    "pk": 4,
+    "fields": {
+      "course": 1,
+      "title": "Модуль с заданиями по скрипке",
+      "order": 1
+    }
+  },
+  {
+    "model": "catalog.content",
+    "pk": 1,
+    "fields": {
+      "module": 1,
+      "content_type": 10,
+      "object_id": 1,
+      "order": 0
+    }
+  },
+  {
+    "model": "catalog.content",
+    "pk": 2,
+    "fields": {
+      "module": 1,
+      "content_type": 10,
+      "object_id": 2,
+      "order": 1
+    }
+  },
+  {
+    "model": "catalog.content",
+    "pk": 3,
+    "fields": {
+      "module": 2,
+      "content_type": 10,
+      "object_id": 3,
+      "order": 0
+    }
+  },
+  {
+    "model": "catalog.content",
+    "pk": 4,
+    "fields": {
+      "module": 2,
+      "content_type": 10,
+      "object_id": 4,
+      "order": 1
+    }
+  },
+  {
+    "model": "catalog.content",
+    "pk": 5,
+    "fields": {
+      "module": 3,
+      "content_type": 10,
+      "object_id": 5,
+      "order": 0
+    }
+  },
+  {
+    "model": "catalog.text",
+    "pk": 1,
+    "fields": {
+      "title": "Занятие по скрипке №1",
+      "content": "Скрипка важный инструмент"
+    }
+  },
+  {
+    "model": "catalog.text",
+    "pk": 2,
+    "fields": {
+      "title": "Занятие по скрипке №2",
+      "content": "Скрипка очень важный инструмент"
+    }
+  },
+  {
+    "model": "catalog.text",
+    "pk": 3,
+    "fields": {
+      "title": "Занятие на гитаре №1",
+      "content": "Первое занятие по гитаре"
+    }
+  },
+  {
+    "model": "catalog.text",
+    "pk": 4,
+    "fields": {
+      "title": "Занятие на гитаре №2",
+      "content": "Второе занятие на гитаре"
+    }
+  },
+  {
+    "model": "catalog.text",
+    "pk": 5,
+    "fields": {
+      "title": "Занятие на гитаре №3",
+      "content": "Третье занятие на гитаре"
+    }
+  },
+  {
+    "model": "catalog.question",
+    "pk": 1,
+    "fields": {
+      "title": "Вопрос по гитаре №1",
+      "text": "Сколько струн у гитары?"
+    }
+  },
+  {
+    "model": "catalog.answer",
+    "pk": 1,
+    "fields": {
+      "question": 1,
+      "text": "3",
+      "is_true": false
+    }
+  },
+  {
+    "model": "catalog.answer",
+    "pk": 2,
+    "fields": {
+      "question": 1,
+      "text": "6",
+      "is_true": true
+    }
+  }
+]

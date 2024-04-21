@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 from .fields import OrderField
+from django.conf import settings
 
 
 def course_logo_directory_path(instance: "Course", filename: str) -> str:
@@ -49,8 +50,10 @@ def course_files_directory_path(instance: "Course", filename: str) -> str:
 
 
 class Course(models.Model):
-    creator = models.ForeignKey(User, related_name="courses_creator", on_delete=models.CASCADE)
-    owner = models.ManyToManyField(User, blank=True, related_name="courses_owner")
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="courses_creator", on_delete=models.CASCADE)
+    # creator = models.ForeignKey(User, related_name="courses_creator", on_delete=models.CASCADE)
+    owner = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="courses_owner")
+    # owner = models.ManyToManyField(User, blank=True, related_name="courses_owner")
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
     description = models.TextField()
