@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
 user_model = get_user_model()
-print("Кастомная модель пользователя:", user_model)
+# print("Кастомная модель пользователя:", user_model)
 
 
 @admin.register(user_model)
@@ -20,6 +20,7 @@ class AccountAdmin(admin.ModelAdmin):
         'avatar',
         'is_moderator',
     )
+    fields = ['username', 'password', 'first_name', 'last_name', 'email', 'is_active', 'is_staff', 'is_moderator']
     # ordering = 'username'
 
 
