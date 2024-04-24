@@ -4,20 +4,33 @@ from django.db import models
 
 
 def user_avatar_path(instance: User, filename: str) -> str:
+    """
+    Функция определения пути аватара пользователя.
+
+    :param instance: Экземпляр модели User.
+    :param filename: Название файла.
+    :return: Путь для сохранения аватара пользователя.
+    """
     return 'users/user_{user_path}/avatars/user_avatar.jpg'.format(
         user_path="user_" + str(instance.username),
     )
 
 
 def user_avatar_path_default() -> str:
+    """
+    Функция определения пути стандартного аватара.
+
+    :return: Путь стандартного аватара.
+    """
     return "users/users_default_avatar.jpg"
 
 
 class CustomAccount(AbstractUser):
-    # Добавление в модель пользователя роли модератора и фотографию пользователя
+    """
+    Расширение модели пользователя добавлением роли модератора и аватара пользователя.
+    """
     avatar = models.ImageField(
         upload_to=user_avatar_path,
-        # default=user_avatar_path_default,
         null=True,
         blank=True
     )
@@ -25,30 +38,44 @@ class CustomAccount(AbstractUser):
 
     @property
     def default_avatar(self):
+        """
+        Возвращает путь к стандартному аватару, если у пользователя нет собственного аватара.
+
+        :return: Путь к стандартному аватару.
+        """
         return user_avatar_path_default()
 
     def set_password(self, raw_password):
-        # print(raw_password)
-        # self.password = raw_password
+        """
+        Устанавливает пароль пользователя, хэшируя его.
+
+        :param raw_password: Пароль в "сыром" виде.
+        """
         self.password = make_password(raw_password)
 
     def save(self, *args, **kwargs):
-        if self.pk is None or 'password' not in self._state.fields_cache:
+        """
+        Переопределяет метод сохранения пользователя.
+        Если объект новый или пароль был изменен, устанавливает хэшированный пароль.
+        Если объект новый и нет аватара, устанавливает стандартный аватар.
+        Если объект удаляет аватар, устанавливает стандартный.
+        """
+        if (self.pk is None) or ('password' not in self._state.fields_cache):
             self.set_password(self.password)
-
 
         if not self.pk and not self.avatar:
             self.avatar = self.default_avatar
 
         elif self.pk:
             old_avatar = CustomAccount.objects.get(pk=self.pk).avatar
+
             if not self.avatar and old_avatar != self.default_avatar:
                 self.avatar = self.default_avatar
                 old_avatar.delete(save=False)
+
             elif not self.avatar and old_avatar == self.default_avatar:
                 self.avatar = self.default_avatar
 
         super().save(*args, **kwargs)
-
 
 

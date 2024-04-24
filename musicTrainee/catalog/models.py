@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from django.db import models
 from django.db.models import Manager
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
@@ -12,10 +11,11 @@ from django.conf import settings
 
 def course_logo_directory_path(instance: "Course", filename: str) -> str:
     """
-    Функция для описания пути логотипа курса
-    :param instance: выбранный курс
-    :param filename: название файла
-    :return: путь для логотипа
+    Функция определения пути логотипа курса.
+
+    :param instance: Экземпляр модели Course.
+    :param filename: Название файла.
+    :return: Путь для сохранения логотипа.
     """
     return "courses/course_{pk}/logo/{filename}".format(
         pk=instance.pk,
@@ -25,10 +25,11 @@ def course_logo_directory_path(instance: "Course", filename: str) -> str:
 
 def course_images_directory_path(instance: "Course", filename: str) -> str:
     """
-    Функция для описания пути изображения для занятий
-    :param instance: выбранный курс
-    :param filename: название файла
-    :return: путь для изображений
+    Функция определения пути изображения для занятий.
+
+    :param instance: Экземпляр модели Course.
+    :param filename: Название файла.
+    :return: Путь для сохранения изображений.
     """
     return "courses/course_{pk}/images/{filename}".format(
         pk=instance.pk,
@@ -38,10 +39,11 @@ def course_images_directory_path(instance: "Course", filename: str) -> str:
 
 def course_files_directory_path(instance: "Course", filename: str) -> str:
     """
-    Функция для описания пути прикладных файлов
-    :param instance: выбранный курс
-    :param filename: название файла
-    :return: путь для файлов
+    Функция определения пути прикладных файлов.
+
+    :param instance: Выбранный курс.
+    :param filename: Название файла.
+    :return: Путь для сохранения файлов.
     """
     return "courses/course_{pk}/files/{filename}".format(
         pk=instance.pk,
@@ -50,10 +52,11 @@ def course_files_directory_path(instance: "Course", filename: str) -> str:
 
 
 class Course(models.Model):
+    """
+    Модель курса.
+    """
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="courses_creator", on_delete=models.CASCADE)
-    # creator = models.ForeignKey(User, related_name="courses_creator", on_delete=models.CASCADE)
     owner = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="courses_owner")
-    # owner = models.ManyToManyField(User, blank=True, related_name="courses_owner")
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
     description = models.TextField()
@@ -70,6 +73,9 @@ class Course(models.Model):
 
 
 class Module(models.Model):
+    """
+    Модель модуля курса.
+    """
     course = models.ForeignKey(Course, related_name="modules", on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     order = OrderField(blank=True, for_fields=['course'])
@@ -85,6 +91,9 @@ class Module(models.Model):
 
 
 class Content(models.Model):
+    """
+    Модель контента курса.
+    """
     module = models.ForeignKey(Module, related_name='contents', on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
                                      limit_choices_to={
@@ -111,10 +120,10 @@ class Content(models.Model):
 
 
 class ItemBase(models.Model):
+    """
+    Абстрактная базовая модель контента.
+    """
     title = models.CharField(max_length=250)
-
-    # created = models.DateTimeField(auto_now_add=True)
-    # update = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
@@ -124,22 +133,37 @@ class ItemBase(models.Model):
 
 
 class Text(ItemBase):
+    """
+    Модель текстового контента.
+    """
     content = models.TextField()
 
 
 class File(ItemBase):
+    """
+    Модель файла контента.
+    """
     file = models.FileField(upload_to=course_files_directory_path)
 
 
 class Image(ItemBase):
+    """
+    Модель изображения контента.
+    """
     file = models.FileField(upload_to=course_images_directory_path)
 
 
 class Video(ItemBase):
+    """
+    Модель видео контента.
+    """
     url = models.URLField()
 
 
 class Question(ItemBase):
+    """
+    Модель текста вопроса теста.
+    """
     text = models.TextField(max_length=3000, verbose_name="text_question")
 
     def __str__(self):
@@ -147,6 +171,9 @@ class Question(ItemBase):
 
 
 class Answer(models.Model):
+    """
+    Модель текста ответа теста.
+    """
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     text = models.CharField(max_length=300)
     is_true = models.BooleanField(default=False)
@@ -156,6 +183,13 @@ class Answer(models.Model):
 
 
 def course_tasks_directory_path(instance: "Course", filename: str):
+    """
+    Функция определения пути сохранения заданий курса.
+
+    :param instance: Экземпляр модели Course.
+    :param filename: Название файла.
+    :return: Путь для сохранения файла.
+    """
     return "courses/course_{pk}/tasks/{filename}".format(
         pk=instance.pk,
         filename=filename
@@ -163,5 +197,8 @@ def course_tasks_directory_path(instance: "Course", filename: str):
 
 
 class Task(ItemBase):
+    """
+    Модель задания курса.
+    """
     description = models.TextField()
     file = models.FileField(blank=True, upload_to=course_tasks_directory_path)

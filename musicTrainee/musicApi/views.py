@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer
 
 
+# Представление для создания нового пользователя
 class CreateUserView(CreateAPIView):
     serializer_class = ProfileCreateSerializer
 
@@ -41,6 +42,7 @@ class CreateUserView(CreateAPIView):
             return Response({'detail': 'Bad request'})
 
 
+# Представление для получения информации о текущем пользователе
 @extend_schema(
     summary='About Me',
     examples=[
@@ -65,6 +67,7 @@ class AboutMeView(RetrieveAPIView):
         return Response(serializer.data)
 
 
+# Представление для входа пользователя в систему
 class LoginView(APIView):
     serializer_class = ProfileLoginSerializer
 
@@ -98,6 +101,7 @@ class LoginView(APIView):
             return Response({'error': 'Invalid username or password'})
 
 
+# Представление для выхода пользователя из системы
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProfileInfoSerializer
