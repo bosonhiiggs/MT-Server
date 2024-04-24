@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'drf_spectacular',
 
     'catalog.apps.CatalogConfig',
     'musicApi.apps.MusicapiConfig',
@@ -138,6 +139,17 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Post API", # название проекта
+    "VERSION": "0.0.1", # версия проекта
+    "SERVE_INCLUDE_SCHEMA": False, # исключить эндпоинт /schema
+    "SWAGGER_UI_SETTINGS": {
+            "filter": True, # включить поиск по тегам
+    },
+    "COMPONENT_SPLIT_REQUEST": True
 }
 
 AUTH_USER_MODEL = 'accounts.CustomAccount'
