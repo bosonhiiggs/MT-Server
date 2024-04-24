@@ -1,7 +1,8 @@
 from django.contrib.auth import logout, authenticate, login
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
-from rest_framework import generics
+from rest_framework import generics, status
 
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view
@@ -11,7 +12,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer
+from accounts.common import generate_reset_code, send_reset_code_email
+from accounts.models import PasswordResetRequest, CustomAccount
+from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer, \
+    PasswordResetRequestSerializer, PasswordResetConfirmSerializer
 
 
 # Представление для создания нового пользователя
@@ -124,3 +128,43 @@ class LogoutView(APIView):
                 'message': 'You have been logged out.'
             }
         )
+
+
+# Представление для создания запроса на сброс пароля
+class PasswordResetRequestView(CreateAPIView):
+    serializer_class = PasswordResetRequestSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            reset_request = PasswordResetRequest.objects.create(
+                email=serializer.validated_data['email'],
+                reset_code=generate_reset_code()
+            )
+            # Отправить письмо с инструкцией по сбросу пароля
+            send_reset_code_email(reset_request.email, reset_request.reset_code)
+            return Response({'message': 'Password reset request sent.'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetConfirmView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            reset_code = serializer.validated_data['reset_code']
+            new_password = serializer.validated_data['new_password']
+
+            try:
+                reset_request: PasswordResetRequest = PasswordResetRequest.objects.get(reset_code=reset_code)
+            except ObjectDoesNotExist:
+                return Response({'message': 'Invalid reset code'})
+
+            user: CustomAccount = CustomAccount.objects.get(email=reset_request.email)
+            user.set_password(new_password)
+            user.save()
+            reset_request.delete()
+            return Response({'message': 'Password reset request successfully sent.'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

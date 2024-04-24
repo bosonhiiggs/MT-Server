@@ -1,6 +1,9 @@
+from typing import TYPE_CHECKING
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, User
 from django.db import models
+from django.db.models import Manager
 
 
 def user_avatar_path(instance: User, filename: str) -> str:
@@ -79,3 +82,16 @@ class CustomAccount(AbstractUser):
         super().save(*args, **kwargs)
 
 
+class PasswordResetRequest(models.Model):
+    """
+    Модель для сброса пароля.
+    """
+    email = models.EmailField(max_length=254)
+    reset_code = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Password reset request for {self.email}"
+
+    if TYPE_CHECKING:
+        objects: Manager
