@@ -7,6 +7,8 @@ import string
 
 from django.core.mail import send_mail
 
+from musicTrainee import settings
+
 
 def generate_reset_code(length=8):
     """
@@ -22,14 +24,15 @@ def generate_reset_code(length=8):
 
 def send_reset_code_email(email, reset_code):
     """
-    Функция отправления письма с кодом восстановления.
+    Функция отправления письма с кодом восстановления на указанную почту.
 
     :param email: Почта пользователя.
     :param reset_code: Код восстановления.
     """
     subject = f'Сброс пароля'
     message = f'Ваш код для сброса пароля: {reset_code}'
-    from_email = 'yourmail@example.com'
+    # from_email = settings.EMAIL_HOST_USER
+    from_email = 'pyaninyury@yandex.ru'
     recipient_list = [email]
     send_mail(
         subject=subject,

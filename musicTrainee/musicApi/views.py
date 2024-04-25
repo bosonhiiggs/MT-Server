@@ -134,6 +134,17 @@ class LogoutView(APIView):
 class PasswordResetRequestView(CreateAPIView):
     serializer_class = PasswordResetRequestSerializer
 
+    @extend_schema(
+        request=PasswordResetRequest,
+        examples=[
+            OpenApiExample(
+                name='Example for Password Reset',
+                value={
+                    'email': 'your_email@example.com',
+                }
+            )
+        ]
+    )
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -149,6 +160,18 @@ class PasswordResetRequestView(CreateAPIView):
 
 
 class PasswordResetConfirmView(APIView):
+    @extend_schema(
+        request=PasswordResetConfirmSerializer,
+        examples=[
+            OpenApiExample(
+                name='Example for Password Reset Confirm',
+                value={
+                    'reset_code': 'your_reset_code',
+                    'new_password': 'your_new_password',
+                }
+            )
+        ]
+    )
     def post(self, request, *args, **kwargs):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         if serializer.is_valid():
@@ -161,10 +184,12 @@ class PasswordResetConfirmView(APIView):
                 return Response({'message': 'Invalid reset code'})
 
             user: CustomAccount = CustomAccount.objects.get(email=reset_request.email)
-            user.set_password(new_password)
+            # print(type(new_password))
+            print(user)
+            user.password = new_password
             user.save()
             reset_request.delete()
-            return Response({'message': 'Password reset request successfully sent.'})
+            return Response({'message': f'Password reset successful.{new_password}'})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

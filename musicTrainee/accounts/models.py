@@ -55,6 +55,7 @@ class CustomAccount(AbstractUser):
         :param raw_password: Пароль в "сыром" виде.
         """
         self.password = make_password(raw_password)
+        print(self.password)
 
     def save(self, *args, **kwargs):
         """
