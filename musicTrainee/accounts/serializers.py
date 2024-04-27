@@ -9,7 +9,7 @@ class ProfileInfoSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = CustomAccount
-        fields = ['id', 'username', 'avatar', 'is_moderator']
+        fields = ['username', 'first_name', 'last_name', 'email', 'avatar', 'is_moderator']
 
 
 class ProfileLoginSerializer(serializers.ModelSerializer):
@@ -53,4 +53,15 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
 
 
+# class UserPatchSerializer(serializers.Serializer):
+#     first_name = serializers.CharField(required=False)
+#     last_name = serializers.CharField(required=False)
+#     email = serializers.EmailField(required=False)
+#     avatar = serializers.ImageField(required=False)
+#     is_moderator = serializers.BooleanField(required=False)
+#
 
+class UserPatchUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomAccount
+        fields = ['first_name', 'last_name', 'email', 'avatar', 'is_moderator']

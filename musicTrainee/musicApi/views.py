@@ -6,7 +6,7 @@ from rest_framework import generics, status
 
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view
-from rest_framework.generics import RetrieveAPIView, CreateAPIView
+from rest_framework.generics import RetrieveAPIView, CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from accounts.common import generate_reset_code, send_reset_code_email
 from accounts.models import PasswordResetRequest, CustomAccount
 from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer, \
-    PasswordResetRequestSerializer, PasswordResetConfirmSerializer
+    PasswordResetRequestSerializer, PasswordResetConfirmSerializer, UserPatchUpdateSerializer
 
 
 # Представление для создания нового пользователя
@@ -44,31 +44,6 @@ class CreateUserView(CreateAPIView):
             return Response({'detail': 'User created successfully.'})
         else:
             return Response({'detail': 'Bad request'})
-
-
-# Представление для получения информации о текущем пользователе
-@extend_schema(
-    summary='About Me',
-    examples=[
-        OpenApiExample(
-            name='Profile Information',
-            value={
-                'id': 0,
-                'username': 'username',
-                'avatar': 'path/to/avatar.png',
-                'is_moderator': 'true'
-            }
-        )
-    ]
-)
-class AboutMeView(RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ProfileInfoSerializer
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.request.user
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
 
 
 # Представление для входа пользователя в систему
@@ -103,6 +78,49 @@ class LoginView(APIView):
             return Response({'success': 'Login in successfully'})
         else:
             return Response({'error': 'Invalid username or password'})
+
+
+# Представление для получения информации о текущем пользователе
+@extend_schema(
+    summary='About Me',
+    examples=[
+        OpenApiExample(
+            name='Profile Information',
+            value={
+                'id': 0,
+                'username': 'username',
+                'avatar': 'path/to/avatar.png',
+                'is_moderator': 'true'
+            }
+        )
+    ]
+)
+class AboutMeView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileInfoSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.request.user
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+
+class UpdateUserView(UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserPatchUpdateSerializer
+    # queryset = CustomAccount.objects.all()
+
+    def get_object(self):
+        return self.request.user
+
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance=instance, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'User updated successfully.'})
+        else:
+            return Response({'error': serializer.errors})
 
 
 # Представление для выхода пользователя из системы

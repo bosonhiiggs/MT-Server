@@ -1,12 +1,13 @@
 from typing import TYPE_CHECKING
 
+from dirtyfields import DirtyFieldsMixin
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import AbstractUser, User
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Manager
 
 
-def user_avatar_path(instance: User, filename: str) -> str:
+def user_avatar_path(instance: AbstractUser, filename: str) -> str:
     """
     Функция определения пути аватара пользователя.
 
@@ -28,7 +29,7 @@ def user_avatar_path_default() -> str:
     return "users/users_default_avatar.jpg"
 
 
-class CustomAccount(AbstractUser):
+class CustomAccount(AbstractUser, DirtyFieldsMixin):
     """
     Расширение модели пользователя добавлением роли модератора и аватара пользователя.
     """
@@ -63,7 +64,9 @@ class CustomAccount(AbstractUser):
         Если объект новый и нет аватара, устанавливает стандартный аватар.
         Если объект удаляет аватар, устанавливает стандартный.
         """
-        if (self.pk is None) or ('password' not in self._state.fields_cache):
+
+        if (self.pk is None) or ('password' in self.get_dirty_fields()):
+            print('Хэш пароля')
             self.set_password(self.password)
 
         if not self.pk and not self.avatar:

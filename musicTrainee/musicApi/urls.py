@@ -6,7 +6,7 @@ from .views import (
     LoginView,
     CreateUserView,
     PasswordResetRequestView,
-    PasswordResetConfirmView,
+    PasswordResetConfirmView, UpdateUserView,
 )
 
 app_name = 'musicApi'
@@ -19,4 +19,5 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='logout'),
     path('reset-request/', PasswordResetRequestView.as_view(), name='reset-request-password'),
     path('reset-confirm/', PasswordResetConfirmView.as_view(), name='reset-confirm-password'),
+    path('update/', UpdateUserView.as_view(), name='update-user'),
 ]
