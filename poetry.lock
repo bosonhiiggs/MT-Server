@@ -57,6 +57,20 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-dirtyfields"
+version = "1.9.2"
+description = "Tracking dirty fields on a Django model instance."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "django-dirtyfields-1.9.2.tar.gz", hash = "sha256:eb2dbed51c2a9bc23e84d19797f4cd074f59c935f8f39bb716d185dc6b86401a"},
+    {file = "django_dirtyfields-1.9.2-py3-none-any.whl", hash = "sha256:93b272eab993f813faabf3ea842ebfad63a03712e7213291aebdbddc5a012a5d"},
+]
+
+[package.dependencies]
+Django = ">=2.0"
+
+[[package]]
 name = "django-rest-framework"
 version = "0.1.0"
 description = "alias."
@@ -487,4 +501,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "2085d3120a11b479ee940266075772e432713b380b09d8f7a531d0e4f9084051"
+content-hash = "b428869cb04093a1d5d0e9457e19a22902c3219a3b90f159f8a562a008ec3b3d"
