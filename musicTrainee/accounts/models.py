@@ -64,9 +64,10 @@ class CustomAccount(AbstractUser, DirtyFieldsMixin):
         Если объект новый и нет аватара, устанавливает стандартный аватар.
         Если объект удаляет аватар, устанавливает стандартный.
         """
-
-        if (self.pk is None) or ('password' in self.get_dirty_fields()):
-            print('Хэш пароля')
+        dirty_fields = self.get_dirty_fields()
+        if (not self.pk) and (self.is_superuser is True):
+            self.password = self.password
+        elif (not self.pk) or ('password' in dirty_fields):
             self.set_password(self.password)
 
         if not self.pk and not self.avatar:
