@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework.urlpatterns import format_suffix_patterns
 
 from .views import (
     AboutMeView,
@@ -6,7 +7,11 @@ from .views import (
     LoginView,
     CreateUserView,
     PasswordResetRequestView,
-    PasswordResetConfirmView, UpdateUserView,
+    PasswordResetConfirmView,
+    UpdateUserView,
+    MyCoursesView,
+    MyCourseDetailView,
+    MyCourseModulesView,
 )
 
 app_name = 'musicApi'
@@ -20,4 +25,8 @@ urlpatterns = [
     path('reset-request/', PasswordResetRequestView.as_view(), name='reset-request-password'),
     path('reset-confirm/', PasswordResetConfirmView.as_view(), name='reset-confirm-password'),
     path('update/', UpdateUserView.as_view(), name='update-user'),
+
+    path('mycourses/', MyCoursesView.as_view(), name='my-courses'),
+    path('mycourses/<str:slug>/', MyCourseDetailView.as_view(), name='my-course-details'),
+    path('mycourses/<str:slug>/modules/', MyCourseModulesView.as_view(), name='my-course-modules'),
 ]

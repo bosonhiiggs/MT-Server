@@ -16,6 +16,8 @@ from accounts.common import generate_reset_code, send_reset_code_email
 from accounts.models import PasswordResetRequest, CustomAccount
 from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer, \
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer, UserPatchUpdateSerializer
+from catalog.models import Course, Module
+from catalog.serializers import CourseDetailSerializer, ModuleSerializer
 
 
 # Представление для создания нового пользователя
@@ -213,4 +215,48 @@ class PasswordResetConfirmView(APIView):
             return Response({'message': f'Password reset successful.{new_password}'})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MyCoursesView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseDetailSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.request.user
+        course = Course.objects.filter(owner=instance).all()
+        serializer = self.get_serializer(course, many=True)
+        response_data = [
+            obj
+            if obj['approval']
+            else {'title': obj['title'], 'message': 'Course is not approval'}
+            for obj in serializer.data
+        ]
+        return Response(response_data)
+
+
+class MyCourseDetailView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseDetailSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.kwargs.get('slug')
+        course = Course.objects.filter(slug=instance).first()
+        if course.approval:
+            serializer = self.get_serializer(course)
+            return Response(serializer.data)
+        else:
+            return Response({'message': 'Course is not approval'})
+
+
+class MyCourseModulesView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ModuleSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.kwargs.get('slug')
+        course = Course.objects.filter(slug=instance).first()
+        modules = Module.objects.filter(course=course).all()
+        serializer = self.get_serializer(modules, many=True)
+        return Response(serializer.data)
+
 

@@ -76,7 +76,7 @@ class Module(models.Model):
     """
     Модель модуля курса.
     """
-    course = models.ForeignKey(Course, related_name="modules", on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, related_name='modules', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     order = OrderField(blank=True, for_fields=['course'])
 
@@ -166,8 +166,8 @@ class Question(ItemBase):
     """
     text = models.TextField(max_length=3000, verbose_name="text_question")
 
-    def __str__(self):
-        return self.text
+    # def __str__(self):
+    #     return self.text
 
 
 class Answer(models.Model):
@@ -178,8 +178,8 @@ class Answer(models.Model):
     text = models.CharField(max_length=300)
     is_true = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.text
+    # def __str__(self):
+    #     return self.text
 
 
 def course_tasks_directory_path(instance: "Course", filename: str):
