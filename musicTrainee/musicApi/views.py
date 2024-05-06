@@ -16,8 +16,8 @@ from accounts.common import generate_reset_code, send_reset_code_email
 from accounts.models import PasswordResetRequest, CustomAccount
 from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer, \
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer, UserPatchUpdateSerializer
-from catalog.models import Course, Module
-from catalog.serializers import CourseDetailSerializer, ModuleSerializer
+from catalog.models import Course, Module, Content
+from catalog.serializers import CourseDetailSerializer, ModuleSerializer, ContentSerializer
 
 
 # Представление для создания нового пользователя
@@ -258,5 +258,10 @@ class MyCourseModulesView(RetrieveAPIView):
         modules = Module.objects.filter(course=course).all()
         serializer = self.get_serializer(modules, many=True)
         return Response(serializer.data)
+
+
+class MyCourseContentView(RetrieveAPIView):
+    queryset = Content.objects.all()
+    serializer_class = ContentSerializer
 
 

@@ -12,6 +12,7 @@ from .views import (
     MyCoursesView,
     MyCourseDetailView,
     MyCourseModulesView,
+    MyCourseContentView,
 )
 
 app_name = 'musicApi'
@@ -29,4 +30,5 @@ urlpatterns = [
     path('mycourses/', MyCoursesView.as_view(), name='my-courses'),
     path('mycourses/<str:slug>/', MyCourseDetailView.as_view(), name='my-course-details'),
     path('mycourses/<str:slug>/modules/', MyCourseModulesView.as_view(), name='my-course-modules'),
+    path('mycourses/<str:slug>/modules/<int:pk>/', MyCourseContentView.as_view(), name='my-course-content'),
 ]

@@ -101,19 +101,26 @@ class ContentSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Content
     """
-    text_content = TextSerializer(many=True, required=True, allow_null=False)
-    file_content = FileSerializer(many=True, required=True, allow_null=False)
-    image_content = ImageSerializer(many=True, required=True, allow_null=False)
-    video_content = VideoSerializer(many=True, required=True, allow_null=False)
-    question_content = QuestionSerializer(many=True, required=True, allow_null=False)
-    answer_content = AnswerSerializer(many=True, required=True, allow_null=False)
-
-    contents = serializers.SerializerMethodField()
+    item = serializers.SerializerMethodField()
 
     class Meta:
         model = Content
-        fields = ['text_content', 'file_content', 'image_content', 'video_content', 'question_content', 'answer_content']
-        # fields = ['contents']
+        fields = ['item']
+
+    def get_item(self, instance):
+        if instance.content_type.model == 'text':
+            serializer = TextSerializer(instance.item)
+        elif instance.content_type.model == 'file':
+            serializer = FileSerializer(instance.item)
+        elif instance.content_type.model == 'image':
+            serializer = ImageSerializer(instance.item)
+        elif instance.content_type.model == 'video':
+            serializer = VideoSerializer(instance.item)
+        elif instance.content_type.model == 'question':
+            serializer = QuestionSerializer(instance.item)
+        else:
+            return {"error": "Item is not found"}
+        return serializer.data
 
 
 class ModuleSerializer(serializers.ModelSerializer):
