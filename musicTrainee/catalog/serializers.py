@@ -13,7 +13,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['title', 'description', 'logo', 'price', 'creator_username', 'created_at_formatted', 'approval']
+        fields = ['title', 'description', 'logo', 'price', 'creator_username', 'created_at_formatted', 'approval', 'slug']
 
     @extend_schema_field(serializers.CharField())
     def get_creator_username(self, obj):
@@ -107,7 +107,7 @@ class ContentSerializer(serializers.ModelSerializer):
         model = Content
         fields = ['item']
 
-    def get_item(self, instance):
+    def get_item(self, instance) -> dict:
         if instance.content_type.model == 'text':
             serializer = TextSerializer(instance.item)
         elif instance.content_type.model == 'file':
@@ -133,10 +133,10 @@ class ModuleSerializer(serializers.ModelSerializer):
         model = Module
         fields = ['title', 'contents']
 
-    def get_contents(self, obj):
+    def get_contents(self, obj) -> list:
         contents_data = []
         for content in obj.contents.all():
-            content_data = {}
+            content_data = {'id': content.pk}
             if isinstance(content.item, Text):
                 content_data['text_content'] = TextSerializer(content.item).data['title']
             elif isinstance(content.item, File):
