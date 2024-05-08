@@ -17,7 +17,6 @@ class TextInline(admin.TabularInline):
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = [
-        'pk',
         'title',
         'description',
         'price',
@@ -61,8 +60,15 @@ class ContentAdmin(admin.ModelAdmin):
 class TextAdmin(admin.ModelAdmin):
     list_display = [
         'title',
-        'content',
+        'short_content',
     ]
+
+    def short_content(self, obj):
+        max_length = 50
+        if len(obj.content) > max_length:
+            return obj.content[:max_length] + '...'
+        else:
+            return obj.content
 
 
 @admin.register(File)
@@ -82,7 +88,7 @@ class TextAdmin(admin.ModelAdmin):
 
 
 @admin.register(Video)
-class TextAdmin(admin.ModelAdmin):
+class VideoAdmin(admin.ModelAdmin):
     list_display = [
         'title',
         'url',

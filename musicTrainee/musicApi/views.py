@@ -16,6 +16,9 @@ from accounts.common import generate_reset_code, send_reset_code_email
 from accounts.models import PasswordResetRequest, CustomAccount
 from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer, \
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer, UserPatchUpdateSerializer
+from catalog.models import Course, Module, Content, Task
+from catalog.serializers import CourseDetailSerializer, ModuleSerializer, ContentSerializer, TextSerializer, \
+    FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, TaskSerializer, AnswerSerializer
 
 
 # Представление для создания нового пользователя
@@ -29,7 +32,7 @@ class CreateUserView(CreateAPIView):
                 name='Account creation',
                 value={
                     'username': 'username',
-                    'email': 'useremail',
+                    'email': 'user_email',
                     'password': 'password',
                 }
             )
@@ -214,3 +217,121 @@ class PasswordResetConfirmView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class MyCoursesView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseDetailSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.request.user
+        course = Course.objects.filter(owner=instance).all()
+        serializer = self.get_serializer(course, many=True)
+        response_data = [
+            obj
+            if obj['approval']
+            else {'title': obj['title'], 'message': 'Course is not approval'}
+            for obj in serializer.data
+        ]
+        return Response(response_data)
+
+
+class MyCourseDetailView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseDetailSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.kwargs.get('slug')
+        course = Course.objects.filter(slug=instance).first()
+        if course.approval:
+            serializer = self.get_serializer(course)
+            return Response(serializer.data)
+        else:
+            return Response({'message': 'Course is not approval'})
+
+
+class MyCourseModulesView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ModuleSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.kwargs.get('slug')
+        course = Course.objects.filter(slug=instance).first()
+        modules = Module.objects.filter(course=course).all()
+        serializer = self.get_serializer(modules, many=True)
+        return Response(serializer.data)
+
+
+class MyCourseContentView(RetrieveAPIView):
+    queryset = Content.objects.all()
+    serializer_class = ContentSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        content_type = instance.item.__class__.__name__
+
+        # print(instance)
+        # print(instance.item)
+        # print(content_type)
+
+        if content_type == 'Text':
+            text_serializer = TextSerializer(instance.item)
+            return Response(text_serializer.data)
+        elif content_type == 'File':
+            file_serializer = FileSerializer(instance.item)
+            return Response(file_serializer.data)
+        elif content_type == 'Image':
+            image_serializer = ImageSerializer(instance.item)
+            return Response(image_serializer.data)
+        elif content_type == 'Video':
+            video_serializer = VideoSerializer(instance.item)
+            return Response(video_serializer.data)
+        elif content_type == 'Question':
+            # print(instance.item.answer_set.filter(is_true=True).values_list('text', flat=True))
+            question_serializer = QuestionSerializer(instance.item)
+            return Response(question_serializer.data)
+        elif content_type == 'Task':
+            task_serializer = TaskSerializer(instance.item)
+            return Response(task_serializer.data)
+        return Response(serializer.data)
+
+    @extend_schema(
+        summary='Post request for answer',
+        request=AnswerSerializer,
+        examples=[
+            OpenApiExample(
+                name='Example for post answer',
+                value={
+                    'answer': 'answer_text',
+                }
+            )
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        if instance.item.__class__.__name__ == 'Question':
+            user_answer = request.data.get('answer')
+            # print(user_answer)
+            correct_answer = instance.item.answer_set.filter(is_true=True).values_list('text', flat=True)
+            if user_answer in correct_answer:
+                return Response({'message': 'Correct answer'})
+            else:
+                return Response({'message': 'Incorrect answer'})
+        else:
+            return Response({'error': 'This content type dont support answering task'})
+
+    # Для того чтобы прикреплять домашние задания, необходимо,
+    # чтобы была еще одна связная таблица с полями: user, task_id, file
+
+    # def put(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     print(instance)
+    #
+    #     if instance.item.__class__.__name__ == 'Task':
+    #         user_file = request.data.get('file')
+    #         task = Task.objects.get(pk=instance.item.pk)
+    #         print(task)
+    #
+    #
+    #     return Response({'message': 'This content type don't support updating task'})
