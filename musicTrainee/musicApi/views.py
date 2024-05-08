@@ -32,7 +32,7 @@ class CreateUserView(CreateAPIView):
                 name='Account creation',
                 value={
                     'username': 'username',
-                    'email': 'useremail',
+                    'email': 'user_email',
                     'password': 'password',
                 }
             )
@@ -321,7 +321,7 @@ class MyCourseContentView(RetrieveAPIView):
         else:
             return Response({'error': 'This content type dont support answering task'})
 
-    # Для того, чтобы прикреплять домашние задания, необходимо,
+    # Для того чтобы прикреплять домашние задания, необходимо,
     # чтобы была еще одна связная таблица с полями: user, task_id, file
 
     # def put(self, request, *args, **kwargs):
@@ -334,4 +334,4 @@ class MyCourseContentView(RetrieveAPIView):
     #         print(task)
     #
     #
-    #     return Response({'message': 'This content type dont support updating task'})
+    #     return Response({'message': 'This content type don't support updating task'})
