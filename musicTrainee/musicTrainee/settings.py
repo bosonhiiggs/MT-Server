@@ -97,8 +97,8 @@ WSGI_APPLICATION = 'musicTrainee.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-        'NAME': DATABASE_DIR / 'db.sqlite3',
+        # 'NAME': BASE_DIR / 'db-template.sqlite3',
+        'NAME': DATABASE_DIR / 'db-template.sqlite3',
     }
 }
 
