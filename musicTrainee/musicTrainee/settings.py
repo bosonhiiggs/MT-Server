@@ -17,7 +17,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-
 current_path = os.path.join('/'.join(os.path.abspath(__file__).split('/')[:-3]), '.env')
 load_dotenv(current_path)
 
@@ -45,7 +44,7 @@ ALLOWED_HOSTS = [
     "0.0.0.0",
 ] + getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
 
-CSRF_TRUSTED_ORIGINS = [] + getenv("DJANGO_ALLOWED_HOSTS", "").split()
+CSRF_TRUSTED_ORIGINS = [] + getenv("CSRF_TRUSTED_ORIGINS", "").split()
 
 # Application definition
 
