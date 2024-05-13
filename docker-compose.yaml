@@ -8,7 +8,7 @@ services:
       - gunicorn
       - musicTrainee.wsgi:application
       - --bind
-      - 0.0.0.0:8000
+      - 0.0.0.0:8001
     ports:
       - "8000:8000"
     restart: always
@@ -21,3 +21,14 @@ services:
         max-size: "200k"
     volumes:
       - ./musicTrainee/database:/app/database
+
+  nginx:
+    container_name: NGINX
+    build: ./nginx
+    volumes:
+      - ./musicTrainee/web/static:/app/web/static
+      - ./musicTrainee/web/media:/app/web/media
+    ports:
+      - "8001:80"
+    depends_on:
+      - app
