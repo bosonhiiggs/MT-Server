@@ -202,6 +202,7 @@ class Task(ItemBase):
     """
     description = models.TextField()
     file = models.FileField(blank=True, upload_to=course_tasks_directory_path)
+    user_student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
 
     if TYPE_CHECKING:
         objects: Manager
