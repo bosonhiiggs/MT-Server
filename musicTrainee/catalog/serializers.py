@@ -88,13 +88,13 @@ class QuestionSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
-class TaskSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для модели Task
-    """
-    class Meta:
-        model = Task
-        fields = ['title', 'description', 'file']
+# class TaskSerializer(serializers.ModelSerializer):
+#     """
+#     Сериализатор для модели Task
+#     """
+#     class Meta:
+#         model = Task
+#         fields = ['title', 'description', 'file', 'user_student']
 
 
 class ContentSerializer(serializers.ModelSerializer):

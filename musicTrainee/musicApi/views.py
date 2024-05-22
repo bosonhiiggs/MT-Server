@@ -18,7 +18,7 @@ from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, 
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer, UserPatchUpdateSerializer
 from catalog.models import Course, Module, Content, Task
 from catalog.serializers import CourseDetailSerializer, ModuleSerializer, ContentSerializer, TextSerializer, \
-    FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, TaskSerializer, AnswerSerializer
+    FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer
 
 
 # Представление для создания нового пользователя
@@ -290,9 +290,9 @@ class MyCourseContentView(RetrieveAPIView):
             # print(instance.item.answer_set.filter(is_true=True).values_list('text', flat=True))
             question_serializer = QuestionSerializer(instance.item)
             return Response(question_serializer.data)
-        elif content_type == 'Task':
-            task_serializer = TaskSerializer(instance.item)
-            return Response(task_serializer.data)
+        # elif content_type == 'Task':
+        #     task_serializer = TaskSerializer(instance.item)
+        #     return Response(task_serializer.data)
         return Response(serializer.data)
 
     @extend_schema(
@@ -324,14 +324,25 @@ class MyCourseContentView(RetrieveAPIView):
     # Для того чтобы прикреплять домашние задания, необходимо,
     # чтобы была еще одна связная таблица с полями: user, task_id, file
 
+    # @extend_schema(
+    #     summary='Post Task for answer',
+    #     request=TaskSerializer,
+    #     examples=[
+    #         OpenApiExample(
+    #             name='Example for post task',
+    #         )
+    #     ]
+    # )
     # def put(self, request, *args, **kwargs):
     #     instance = self.get_object()
-    #     print(instance)
     #
     #     if instance.item.__class__.__name__ == 'Task':
+    #         serializer = TaskSerializer(data=instance.item)
     #         user_file = request.data.get('file')
     #         task = Task.objects.get(pk=instance.item.pk)
-    #         print(task)
+    #         if serializer.is_valid():
+    #             print(1)
+    #             serializer.save(user_student=request.user)
+    #             return Response({'message': 'Task created'})
     #
-    #
-    #     return Response({'message': 'This content type don't support updating task'})
+    #     return Response({'message': "This content type don't support updating task"})

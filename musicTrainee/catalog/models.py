@@ -201,8 +201,22 @@ class Task(ItemBase):
     Модель задания курса.
     """
     description = models.TextField()
-    file = models.FileField(blank=True, upload_to=course_tasks_directory_path)
-    user_student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    # file = models.FileField(blank=True, upload_to=course_tasks_directory_path)
+    # user_student = models.ManyToManyField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
 
     if TYPE_CHECKING:
         objects: Manager
+
+
+class TaskSubmission(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="submissions")
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="submissions")
+    file = models.FileField(upload_to=course_tasks_directory_path)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("task", "student")
+        ordering = ["-submitted_at"]
+
+
+
