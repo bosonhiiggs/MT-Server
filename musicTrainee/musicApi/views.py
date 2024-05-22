@@ -1,5 +1,6 @@
 from django.contrib.auth import logout, authenticate, login
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
 from rest_framework import generics, status
@@ -16,9 +17,10 @@ from accounts.common import generate_reset_code, send_reset_code_email
 from accounts.models import PasswordResetRequest, CustomAccount
 from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer, \
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer, UserPatchUpdateSerializer
-from catalog.models import Course, Module, Content, Task
+from catalog.models import Course, Module, Content, Task, TaskSubmission
 from catalog.serializers import CourseDetailSerializer, ModuleSerializer, ContentSerializer, TextSerializer, \
-    FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer
+    FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer, TaskSerializer, \
+    TaskSubmissionSerializer
 
 
 # Представление для создания нового пользователя
@@ -270,10 +272,6 @@ class MyCourseContentView(RetrieveAPIView):
         serializer = self.get_serializer(instance)
         content_type = instance.item.__class__.__name__
 
-        # print(instance)
-        # print(instance.item)
-        # print(content_type)
-
         if content_type == 'Text':
             text_serializer = TextSerializer(instance.item)
             return Response(text_serializer.data)
@@ -290,14 +288,17 @@ class MyCourseContentView(RetrieveAPIView):
             # print(instance.item.answer_set.filter(is_true=True).values_list('text', flat=True))
             question_serializer = QuestionSerializer(instance.item)
             return Response(question_serializer.data)
-        # elif content_type == 'Task':
-        #     task_serializer = TaskSerializer(instance.item)
-        #     return Response(task_serializer.data)
+        elif content_type == 'Task':
+            task_serializer = TaskSerializer(instance.item)
+            return Response(task_serializer.data)
         return Response(serializer.data)
 
     @extend_schema(
         summary='Post request for answer',
-        request=AnswerSerializer,
+        request={
+            'answer': AnswerSerializer,
+            'multipart/form-data': TaskSubmissionSerializer,
+        },
         examples=[
             OpenApiExample(
                 name='Example for post answer',
@@ -307,7 +308,7 @@ class MyCourseContentView(RetrieveAPIView):
             )
         ]
     )
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args, **kwargs):
         instance = self.get_object()
 
         if instance.item.__class__.__name__ == 'Question':
@@ -318,31 +319,16 @@ class MyCourseContentView(RetrieveAPIView):
                 return Response({'message': 'Correct answer'})
             else:
                 return Response({'message': 'Incorrect answer'})
+        elif instance.item.__class__.__name__ == 'Task':
+            file = request.FILES.get('file')
+            if not file:
+                return Response({'message': 'Please upload a file'})
+
+            try:
+                submission = TaskSubmission.objects.create(task=instance.item, student=request.user, file=file)
+                submission_serializer = TaskSubmissionSerializer(submission)
+                return Response(submission_serializer.data)
+            except IntegrityError:
+                return Response({'message': 'Task already exists by your user'})
         else:
             return Response({'error': 'This content type dont support answering task'})
-
-    # Для того чтобы прикреплять домашние задания, необходимо,
-    # чтобы была еще одна связная таблица с полями: user, task_id, file
-
-    # @extend_schema(
-    #     summary='Post Task for answer',
-    #     request=TaskSerializer,
-    #     examples=[
-    #         OpenApiExample(
-    #             name='Example for post task',
-    #         )
-    #     ]
-    # )
-    # def put(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #
-    #     if instance.item.__class__.__name__ == 'Task':
-    #         serializer = TaskSerializer(data=instance.item)
-    #         user_file = request.data.get('file')
-    #         task = Task.objects.get(pk=instance.item.pk)
-    #         if serializer.is_valid():
-    #             print(1)
-    #             serializer.save(user_student=request.user)
-    #             return Response({'message': 'Task created'})
-    #
-    #     return Response({'message': "This content type don't support updating task"})

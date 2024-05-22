@@ -218,5 +218,8 @@ class TaskSubmission(models.Model):
         unique_together = ("task", "student")
         ordering = ["-submitted_at"]
 
+    if TYPE_CHECKING:
+        objects: Manager
+
 
 

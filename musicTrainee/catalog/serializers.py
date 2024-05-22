@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from catalog.models import Course, Module, Text, File, Image, Video, Question, Answer, Task, Content
+from catalog.models import Course, Module, Text, File, Image, Video, Question, Answer, Task, Content, TaskSubmission
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
@@ -69,6 +69,7 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = ['text', 'is_true']
+        read_only_fields = ['is_true']
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -88,13 +89,23 @@ class QuestionSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
-# class TaskSerializer(serializers.ModelSerializer):
-#     """
-#     Сериализатор для модели Task
-#     """
-#     class Meta:
-#         model = Task
-#         fields = ['title', 'description', 'file', 'user_student']
+class TaskSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели Task
+    """
+    class Meta:
+        model = Task
+        fields = ['title', 'description',]
+
+
+class TaskSubmissionSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели TaskSubmission
+    """
+    class Meta:
+        model = TaskSubmission
+        fields = ['task', 'student', 'file', 'submitted_at']
+        read_only_fields = ['task', 'student', 'submitted_at']
 
 
 class ContentSerializer(serializers.ModelSerializer):
