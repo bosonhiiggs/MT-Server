@@ -201,14 +201,15 @@ class Task(ItemBase):
     Модель задания курса.
     """
     description = models.TextField()
-    # file = models.FileField(blank=True, upload_to=course_tasks_directory_path)
-    # user_student = models.ManyToManyField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
 
     if TYPE_CHECKING:
         objects: Manager
 
 
 class TaskSubmission(models.Model):
+    """
+    Модель для прикрепления файла для проверки задания
+    """
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="submissions")
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="submissions")
     file = models.FileField(upload_to=course_tasks_directory_path)
@@ -220,6 +221,3 @@ class TaskSubmission(models.Model):
 
     if TYPE_CHECKING:
         objects: Manager
-
-
-

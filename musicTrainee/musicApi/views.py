@@ -226,8 +226,8 @@ class MyCoursesView(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.request.user
-        course = Course.objects.filter(owner=instance).all()
-        serializer = self.get_serializer(course, many=True)
+        courses = Course.objects.filter(owner=instance).all()
+        serializer = self.get_serializer(courses, many=True)
         response_data = [
             obj
             if obj['approval']
@@ -332,3 +332,24 @@ class MyCourseContentView(RetrieveAPIView):
                 return Response({'message': 'Task already exists by your user'})
         else:
             return Response({'error': 'This content type dont support answering task'})
+
+
+class CatalogCoursesView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseDetailSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        courses = Course.objects.all()
+        serializer = self.get_serializer(courses, many=True)
+        return Response(serializer.data)
+
+
+class CatalogCourseDetailView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseDetailSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.kwargs.get('slug')
+        course = Course.objects.filter(slug=instance).first()
+        serializer = self.get_serializer(course)
+        return Response(serializer.data)

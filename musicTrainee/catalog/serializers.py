@@ -160,5 +160,3 @@ class ModuleSerializer(serializers.ModelSerializer):
                 content_data['question_content'] = QuestionSerializer(content.item).data['title']
             contents_data.append(content_data)
         return contents_data
-
-
