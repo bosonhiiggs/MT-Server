@@ -334,6 +334,9 @@ class MyCourseContentView(RetrieveAPIView):
             return Response({'error': 'This content type dont support answering task'})
 
 
+@extend_schema(
+    summary='Catalog courses list',
+)
 class CatalogCoursesView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CourseDetailSerializer
@@ -344,6 +347,9 @@ class CatalogCoursesView(RetrieveAPIView):
         return Response(serializer.data)
 
 
+@extend_schema(
+    summary='Catalog detail course',
+)
 class CatalogCourseDetailView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CourseDetailSerializer
@@ -353,3 +359,17 @@ class CatalogCourseDetailView(RetrieveAPIView):
         course = Course.objects.filter(slug=instance).first()
         serializer = self.get_serializer(course)
         return Response(serializer.data)
+
+
+class MyCreationCoursesView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseDetailSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        my_creations = Course.objects.filter(creator=request.user).all()
+        serializer = self.get_serializer(my_creations, many=True)
+        return Response(serializer.data)
+
+
+class CourseCreateView(CreateAPIView):
+    permission_classes = [IsAuthenticated]

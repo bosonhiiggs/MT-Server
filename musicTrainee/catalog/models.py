@@ -60,6 +60,7 @@ class Course(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
     description = models.TextField()
+    target_description = models.CharField(max_length=500)
     price = models.DecimalField(default=0, max_digits=10, decimal_places=2)
     created = models.DateTimeField(auto_now_add=True)
     logo = models.ImageField(null=True, blank=True, upload_to=course_logo_directory_path)
