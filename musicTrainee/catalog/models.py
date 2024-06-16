@@ -237,3 +237,15 @@ class TaskSubmission(models.Model):
 
     if TYPE_CHECKING:
         objects: Manager
+
+
+class TaskReview(models.Model):
+    """
+    Модель для ответа на домашнее задание пользователя
+    """
+    task_submission = models.ForeignKey(TaskSubmission, on_delete=models.CASCADE, related_name="review")
+    is_correct = models.BooleanField(null=True, default=None)
+    comment = models.TextField(blank=True)
+
+    if TYPE_CHECKING:
+        objects: Manager
