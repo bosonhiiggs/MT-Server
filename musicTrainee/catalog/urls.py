@@ -8,7 +8,8 @@ app_name = "catalog"
 urlpatterns = [
     path("", base_view, name="base-page"),
     path("catalog/", CoursesListView.as_view(), name="base-page"),
-    path("catalog/<str:slug>", CourseDetails.as_view(), name="course-details"),
+    path("catalog/<str:slug>/", CourseDetails.as_view(), name="course-details"),
     path("catalog/<str:slug>/modules/", CourseModules.as_view(), name="course-modules"),
-    path("catalog/<str:slug>/modules/<int:pk>", CourseModuleDetails.as_view(), name="course-modules-details"),
+    path("catalog/<str:slug>/modules/<int:module_id>/", CourseModules.as_view(), name="course-modules"),
+    path("catalog/<str:slug>/modules/<int:module_id>/<int:pk>/", CourseModuleDetails.as_view(), name="course-modules-details"),
 ]

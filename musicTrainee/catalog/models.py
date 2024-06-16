@@ -91,11 +91,26 @@ class Module(models.Model):
         ordering = ['order']
 
 
+class Lesson(models.Model):
+    module = models.ForeignKey(Module, related_name='lessons', on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    order = OrderField(blank=True, for_fields=['module'])
+
+    if TYPE_CHECKING:
+        objects: Manager
+
+    def __str__(self):
+        return f'{self.order}. {self.title}'
+
+    class Meta:
+        ordering = ['order']
+
+
 class Content(models.Model):
     """
     Модель контента курса.
     """
-    module = models.ForeignKey(Module, related_name='contents', on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, related_name='contents', on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
                                      limit_choices_to={
                                          'model__in':
@@ -111,7 +126,7 @@ class Content(models.Model):
                                      )
     object_id = models.PositiveIntegerField()
     item = GenericForeignKey('content_type', 'object_id')
-    order = OrderField(blank=True, for_fields=['module'])
+    order = OrderField(blank=True, for_fields=['lesson'])
 
     if TYPE_CHECKING:
         objects: Manager

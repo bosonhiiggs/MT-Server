@@ -1,7 +1,9 @@
+from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from catalog.models import Course, Module, Text, File, Image, Video, Question, Answer, Task, Content, TaskSubmission
+from catalog.models import Course, Module, Text, File, Image, Video, Question, Answer, Task, Content, TaskSubmission, \
+    Lesson
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
@@ -13,7 +15,17 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['title', 'description', 'logo', 'price', 'creator_username', 'created_at_formatted', 'approval', 'slug']
+        fields = [
+            'title',
+            'description',
+            'target_description',
+            'logo',
+            'price',
+            'creator_username',
+            'created_at_formatted',
+            'approval',
+            'slug'
+        ]
 
     @extend_schema_field(serializers.CharField())
     def get_creator_username(self, obj):
@@ -26,10 +38,43 @@ class CourseDetailSerializer(serializers.ModelSerializer):
         return obj.created.strftime('%d.%m.%Y %H:%M')
 
 
+class PaidCourseCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = [
+            'title',
+            'target_description',
+            'description',
+            'price'
+        ]
+        extra_kwargs = {
+            'logo': {'required': False},
+        }
+
+
+class FreeCourseCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = [
+            'title',
+            'target_description',
+            'description',
+        ]
+        extra_kwargs = {
+            'logo': {'required': False},
+        }
+
+    def validate(self, data):
+        data['price'] = 0
+        return data
+
+
 class TextSerializer(serializers.ModelSerializer):
+    # lesson = serializers.SerializerMethodField()
     """
     Сериализатор для модели Text
     """
+
     class Meta:
         model = Text
         fields = ['title', 'content']
@@ -39,6 +84,7 @@ class FileSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели File
     """
+
     class Meta:
         model = File
         fields = ['title', 'file']
@@ -48,6 +94,7 @@ class ImageSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Image
     """
+
     class Meta:
         model = Image
         fields = ['title', 'file']
@@ -57,6 +104,7 @@ class VideoSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Video
     """
+
     class Meta:
         model = Video
         fields = ['title', 'url']
@@ -66,9 +114,10 @@ class AnswerSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Answer
     """
+
     class Meta:
         model = Answer
-        fields = ['text', 'is_true']
+        fields = ['question', 'text', 'is_true']
         read_only_fields = ['is_true']
 
 
@@ -93,15 +142,17 @@ class TaskSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Task
     """
+
     class Meta:
         model = Task
-        fields = ['title', 'description',]
+        fields = ['title', 'description', ]
 
 
 class TaskSubmissionSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели TaskSubmission
     """
+
     class Meta:
         model = TaskSubmission
         fields = ['task', 'student', 'file', 'submitted_at']
@@ -129,19 +180,47 @@ class ContentSerializer(serializers.ModelSerializer):
             serializer = VideoSerializer(instance.item)
         elif instance.content_type.model == 'question':
             serializer = QuestionSerializer(instance.item)
+        elif instance.content_type.model == 'task':
+            serializer = TaskSerializer(instance.item)
         else:
             return {"error": "Item is not found"}
         return serializer.data
+
+
+class ContentCreateSerializer(serializers.ModelSerializer):
+    content_type = serializers.CharField()
+
+    class Meta:
+        model = Content
+        fields = ['content_type', 'object_id']
+
+    def validate_content_type(self, value):
+        try:
+            return ContentType.objects.get(model=value)
+        except ContentType.DoesNotExist:
+            raise serializers.ValidationError("Invalid content type.")
 
 
 class ModuleSerializer(serializers.ModelSerializer):
     """
     Сериализатор для Module
     """
+    class Meta:
+        model = Module
+        fields = ['title']
+
+
+class ModuleCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Module
+        fields = ['title']
+
+
+class LessonSerializer(serializers.ModelSerializer):
     contents = serializers.SerializerMethodField()
 
     class Meta:
-        model = Module
+        model = Lesson
         fields = ['title', 'contents']
 
     def get_contents(self, obj) -> list:
@@ -158,5 +237,17 @@ class ModuleSerializer(serializers.ModelSerializer):
                 content_data['video_content'] = VideoSerializer(content.item).data['title']
             elif isinstance(content.item, Question):
                 content_data['question_content'] = QuestionSerializer(content.item).data['title']
+            elif isinstance(content.item, Task):
+                content_data['task_content'] = TaskSerializer(content.item).data['title']
             contents_data.append(content_data)
         return contents_data
+
+
+class LessonCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = ['title']
+
+    def create(self, validated_data):
+        module = self.context['module']
+        return Lesson.objects.create(module=module, **validated_data)

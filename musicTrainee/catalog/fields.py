@@ -16,8 +16,7 @@ class OrderField(models.PositiveIntegerField):
                     # фильтровать по объектам с
                     # одинаковыми значениями полей
                     # для полей в "for_fields"
-                    query = {field: getattr(model_instance, field) \
-                             for field in self.for_fields}
+                    query = {field: getattr(model_instance, field) for field in self.for_fields}
                     qs = qs.filter(**query)
                 # получить порядок последней позиции
                 last_item = qs.latest(self.attname)

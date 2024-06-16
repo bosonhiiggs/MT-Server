@@ -1,5 +1,6 @@
 from django.contrib.auth import logout, authenticate, login
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
@@ -7,7 +8,8 @@ from rest_framework import generics, status
 
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view
-from rest_framework.generics import RetrieveAPIView, CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView
+from rest_framework.generics import RetrieveAPIView, CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView, \
+    get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -17,10 +19,13 @@ from accounts.common import generate_reset_code, send_reset_code_email
 from accounts.models import PasswordResetRequest, CustomAccount
 from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer, \
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer, UserPatchUpdateSerializer
-from catalog.models import Course, Module, Content, Task, TaskSubmission
+from catalog.models import Course, Module, Content, Task, TaskSubmission, Lesson
 from catalog.serializers import CourseDetailSerializer, ModuleSerializer, ContentSerializer, TextSerializer, \
     FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer, TaskSerializer, \
-    TaskSubmissionSerializer
+    TaskSubmissionSerializer, PaidCourseCreateSerializer, FreeCourseCreateSerializer, ModuleCreateSerializer, \
+    LessonSerializer, LessonCreateSerializer, ContentCreateSerializer
+
+from slugify import slugify
 
 
 # Представление для создания нового пользователя
@@ -113,6 +118,7 @@ class AboutMeView(RetrieveAPIView):
 class UpdateUserView(UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserPatchUpdateSerializer
+
     # queryset = CustomAccount.objects.all()
 
     def get_object(self):
@@ -257,15 +263,50 @@ class MyCourseModulesView(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.kwargs.get('slug')
-        course = Course.objects.filter(slug=instance).first()
-        modules = Module.objects.filter(course=course).all()
+        course = get_object_or_404(Course.objects.prefetch_related('modules'), slug=instance)
+        modules = course.modules.all()
         serializer = self.get_serializer(modules, many=True)
         return Response(serializer.data)
 
 
+class MyLessonsView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LessonSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        slug = kwargs.get('slug')
+        module_id = kwargs.get('module_id')
+
+        course = get_object_or_404(Course, slug=slug)
+        module = get_object_or_404(Module.objects.prefetch_related('lessons'), id=module_id, course=course)
+
+        lessons = module.lessons.all()
+        serializer = self.get_serializer(lessons, many=True)
+        return Response(serializer.data)
+
+
 class MyCourseContentView(RetrieveAPIView):
-    queryset = Content.objects.all()
+    permission_classes = [IsAuthenticated]
+    # queryset = Content.objects.all()
     serializer_class = ContentSerializer
+
+    # lookup_field = 'id'
+
+    def get_queryset(self):
+        slug = self.kwargs.get('slug')
+        module_id = self.kwargs.get('module_id')
+        lesson_id = self.kwargs.get('lesson_id')
+
+        course = get_object_or_404(Course, slug=slug)
+        module = get_object_or_404(Module, id=module_id, course=course)
+        lesson = get_object_or_404(Lesson, id=lesson_id, module=module)
+
+        return Content.objects.filter(lesson=lesson)
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        content_id = self.kwargs.get('content_id')
+        return get_object_or_404(queryset, id=content_id)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -285,7 +326,6 @@ class MyCourseContentView(RetrieveAPIView):
             video_serializer = VideoSerializer(instance.item)
             return Response(video_serializer.data)
         elif content_type == 'Question':
-            # print(instance.item.answer_set.filter(is_true=True).values_list('text', flat=True))
             question_serializer = QuestionSerializer(instance.item)
             return Response(question_serializer.data)
         elif content_type == 'Task':
@@ -293,19 +333,34 @@ class MyCourseContentView(RetrieveAPIView):
             return Response(task_serializer.data)
         return Response(serializer.data)
 
+
     @extend_schema(
-        summary='Post request for answer',
+        summary='Create a content object',
         request={
-            'answer': AnswerSerializer,
+            'application/json': AnswerSerializer,
             'multipart/form-data': TaskSubmissionSerializer,
+        },
+        responses={
+            200: OpenApiExample(
+                name='Correct answer response',
+                value={'message': 'Correct answer'}
+            ),
         },
         examples=[
             OpenApiExample(
-                name='Example for post answer',
+                'Example for post answer',
                 value={
-                    'answer': 'answer_text',
-                }
-            )
+                    'answer': 'your_answer_text',  # Пример JSON запроса
+                },
+                media_type='application/json',
+            ),
+            OpenApiExample(
+                'Example for post task submission',
+                value={
+                    'file': 'file content here',  # Пример multipart/form-data запроса
+                },
+                media_type='multipart/form-data',
+            ),
         ]
     )
     def post(self, request: Request, *args, **kwargs):
@@ -313,7 +368,6 @@ class MyCourseContentView(RetrieveAPIView):
 
         if instance.item.__class__.__name__ == 'Question':
             user_answer = request.data.get('answer')
-            # print(user_answer)
             correct_answer = instance.item.answer_set.filter(is_true=True).values_list('text', flat=True)
             if user_answer in correct_answer:
                 return Response({'message': 'Correct answer'})
@@ -371,5 +425,129 @@ class MyCreationCoursesView(RetrieveAPIView):
         return Response(serializer.data)
 
 
-class CourseCreateView(CreateAPIView):
+class PaidCourseCreateView(CreateAPIView):
+    queryset = Course
+    serializer_class = PaidCourseCreateSerializer
     permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        title = serializer.validated_data['title']
+        slug = slugify(title)
+        serializer.save(creator=self.request.user, slug=slug)
+
+
+class FreeCourseCreateView(CreateAPIView):
+    queryset = Course
+    serializer_class = FreeCourseCreateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        title = serializer.validated_data['title']
+        slug = slugify(title)
+        serializer.save(creator=self.request.user, slug=slug)
+
+
+class ModuleCreateView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ModuleCreateSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.kwargs.get('slug')
+        course = get_object_or_404(Course.objects.prefetch_related('modules'), slug=instance)
+        modules = course.modules.all()
+        serializer = self.get_serializer(modules, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        instance = self.kwargs.get('slug')
+        course = get_object_or_404(Course, slug=instance)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(course=course)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LessonCreatedView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LessonSerializer
+
+    def get_module(self):
+        slug = self.kwargs.get('slug')
+        module_id = self.kwargs.get('module_id')
+        course = get_object_or_404(Course, slug=slug)
+        module = get_object_or_404(Module, id=module_id, course=course)
+        return module
+
+    def get_queryset(self):
+        module = self.get_module()
+        return Lesson.objects.filter(module=module)
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = get_object_or_404(queryset)
+        return obj
+
+    def retrieve(self, request, *args, **kwargs):
+        module = self.get_module()
+        lessons = self.get_queryset()
+        serializer = self.get_serializer(lessons, many=True)
+        response = [module.title, serializer.data]
+        return Response(response)
+
+
+class LessonContentCreateView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_module(self):
+        slug = self.kwargs.get('slug')
+        module_id = self.kwargs.get('module_id')
+        course = get_object_or_404(Course, slug=slug)
+        module = get_object_or_404(Module, id=module_id, course=course)
+        return module
+
+    def create(self, request, *args, **kwargs):
+        module = self.get_module()
+
+        lesson_data = request.data.get('lesson')
+        lesson_serializer = LessonCreateSerializer(data=lesson_data, context={'module': module})
+        if lesson_serializer.is_valid():
+            lesson = lesson_serializer.save()
+        else:
+            return Response(lesson_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        contents_data = request.data.get('contents', [])
+        created_contents = []
+
+        for content_data in contents_data:
+            content_type = content_data.get('content_type')
+
+            if content_type == 'text':
+                content_serializer = TextSerializer(data=content_data.get('text'))
+            elif content_type == 'file':
+                content_serializer = FileSerializer(data=content_data.get('file'))
+            elif content_type == 'image':
+                content_serializer = ImageSerializer(data=content_data.get('image'))
+            elif content_type == 'video':
+                content_serializer = VideoSerializer(data=content_data.get('video'))
+            elif content_type == 'question':
+                content_serializer = QuestionSerializer(data=content_data.get('question'))
+            elif content_type == 'task':
+                content_serializer = TaskSerializer(data=content_data.get('task'))
+            else:
+                raise ValidationError({'error': 'Invalid content type'})
+
+            if content_serializer.is_valid():
+                item = content_serializer.save()
+                content_type_instance = ContentType.objects.get(model=content_type)
+                created_content = Content.objects.create(lesson=lesson, content_type=content_type_instance, object_id=item.id)
+                created_contents.append(created_content)
+            else:
+                return Response(content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        response_data = {
+            'lesson': LessonCreateSerializer(lesson).data,
+            'content': ContentSerializer(created_contents, many=True).data,
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
+

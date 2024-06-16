@@ -13,7 +13,8 @@ from .views import (
     MyCourseDetailView,
     MyCourseModulesView,
     MyCourseContentView,
-    CatalogCoursesView, CatalogCourseDetailView, MyCreationCoursesView,
+    CatalogCoursesView, CatalogCourseDetailView, MyCreationCoursesView, PaidCourseCreateView, FreeCourseCreateView,
+    ModuleCreateView, MyLessonsView, LessonCreatedView, LessonContentCreateView,
 )
 
 app_name = 'musicApi'
@@ -31,10 +32,16 @@ urlpatterns = [
     path('mycourses/', MyCoursesView.as_view(), name='my-courses'),
     path('mycourses/<str:slug>/', MyCourseDetailView.as_view(), name='my-course-details'),
     path('mycourses/<str:slug>/modules/', MyCourseModulesView.as_view(), name='my-course-modules'),
-    path('mycourses/<str:slug>/modules/<int:pk>/', MyCourseContentView.as_view(), name='my-course-content'),
+    path('mycourses/<str:slug>/modules/<int:module_id>/', MyLessonsView.as_view(), name='my-course-modules'),
+    path('mycourses/<str:slug>/modules/<int:module_id>/<int:lesson_id>/<int:content_id>/', MyCourseContentView.as_view(), name='my-course-content'),
 
     path('catalog/', CatalogCoursesView.as_view(), name='catalog'),
     path('catalog/<str:slug>', CatalogCourseDetailView.as_view(), name='catalog-detail'),
 
     path('mycreations/', MyCreationCoursesView.as_view(), name='my-creations'),
+    path('mycreations/create/paid/', PaidCourseCreateView.as_view(), name='course-create-paid'),
+    path('mycreations/create/free/', FreeCourseCreateView.as_view(), name='course-create-free'),
+    path('mycreations/create/<str:slug>/modules/', ModuleCreateView.as_view(), name='course-create-modules'),
+    path('mycreations/create/<str:slug>/modules/<int:module_id>', LessonCreatedView.as_view(), name='course-create-lessons'),
+    path('mycreations/create/<str:slug>/modules/<int:module_id>/lessoncreate', LessonContentCreateView.as_view(), name='course-create-content'),
 ]
