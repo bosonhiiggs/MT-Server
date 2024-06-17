@@ -3,7 +3,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from catalog.models import Course, Module, Text, File, Image, Video, Question, Answer, Task, Content, TaskSubmission, \
-    Lesson
+    Lesson, TaskReview
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
@@ -157,6 +157,15 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
         model = TaskSubmission
         fields = ['task', 'student', 'file', 'submitted_at']
         read_only_fields = ['task', 'student', 'submitted_at']
+
+
+class TaskReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskReview
+        fields = ['is_correct', 'comment']
+        extra_kwargs = {
+            'comment': {'required': False},
+        }
 
 
 class ContentSerializer(serializers.ModelSerializer):

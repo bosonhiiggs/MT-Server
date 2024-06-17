@@ -2,6 +2,7 @@ from django.contrib.auth import logout, authenticate, login
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
+from django.db.models import Exists, OuterRef
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
 from rest_framework import generics, status
@@ -9,7 +10,7 @@ from rest_framework import generics, status
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveAPIView, CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView, \
-    get_object_or_404
+    get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -19,11 +20,11 @@ from accounts.common import generate_reset_code, send_reset_code_email
 from accounts.models import PasswordResetRequest, CustomAccount
 from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer, \
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer, UserPatchUpdateSerializer
-from catalog.models import Course, Module, Content, Task, TaskSubmission, Lesson
+from catalog.models import Course, Module, Content, Task, TaskSubmission, Lesson, TaskReview
 from catalog.serializers import CourseDetailSerializer, ModuleSerializer, ContentSerializer, TextSerializer, \
     FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer, TaskSerializer, \
     TaskSubmissionSerializer, PaidCourseCreateSerializer, FreeCourseCreateSerializer, ModuleCreateSerializer, \
-    LessonSerializer, LessonCreateSerializer, ContentCreateSerializer
+    LessonSerializer, LessonCreateSerializer, ContentCreateSerializer, TaskReviewSerializer
 
 from slugify import slugify
 
@@ -330,9 +331,20 @@ class MyCourseContentView(RetrieveAPIView):
             return Response(question_serializer.data)
         elif content_type == 'Task':
             task_serializer = TaskSerializer(instance.item)
-            return Response(task_serializer.data)
-        return Response(serializer.data)
+            response_data = task_serializer.data
+            submissions = TaskSubmission.objects.filter(task=instance.item, student=request.user)
+            if submissions.exists():
+                submission = submissions.first()
+                submission_serializer = TaskSubmissionSerializer(submission)
+                response_data['submission'] = submission_serializer.data
+                reviews = TaskReview.objects.filter(task_submission=submission.id)
 
+                if reviews.exists():
+                    review = reviews.first()
+                    review_serializer = TaskReviewSerializer(review)
+                    response_data['review'] = review_serializer.data
+            return Response(response_data)
+        return Response(serializer.data)
 
     @extend_schema(
         summary='Create a content object',
@@ -550,4 +562,58 @@ class LessonContentCreateView(CreateAPIView):
             'content': ContentSerializer(created_contents, many=True).data,
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+class TaskSubmissionsForReviewView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TaskSubmissionSerializer
+
+    def get_queryset(self):
+        return TaskSubmission.objects.annotate(
+            has_review=Exists(TaskReview.objects.filter(task_submission_id=OuterRef('pk')))
+        ).filter(has_review=False)
+
+
+class TaskSubmissionReviewView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TaskSubmissionSerializer
+
+    def get_object(self):
+        task_id = self.kwargs.get('task_id')
+        return get_object_or_404(TaskSubmission, pk=task_id)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        return Response(serializer.data)
+
+    @extend_schema(
+        summary='Submits a task for review',
+        request=TaskReviewSerializer,
+        examples=[
+            OpenApiExample(
+                name='Submits a task for review',
+                value={
+                    "review": {
+                        "is_correct": True,
+                        "comment": "Optional"
+                    }
+                }
+            )
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        task_submission = self.get_object()
+
+        review_data = request.data.get('review')
+        review_data['task_submission'] = task_submission.id
+
+        review_serializer = TaskReviewSerializer(data=review_data)
+        if review_serializer.is_valid():
+            review = review_serializer.save()
+            return Response(review_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(review_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
