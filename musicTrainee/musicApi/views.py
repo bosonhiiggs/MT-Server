@@ -51,7 +51,6 @@ class CreateUserView(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        # print(serializer.is_valid)
         if serializer.is_valid():
             self.create(request, *args, **kwargs)
             user = authenticate(username=request.data['username'], password=request.data['password'])
@@ -952,7 +951,6 @@ class ModerationCoursesView(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        print(user.is_moderator)
         if user.is_moderator is True:
             return Course.objects.filter(approval=False).order_by('id')
         else:
