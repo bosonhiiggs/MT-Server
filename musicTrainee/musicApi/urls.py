@@ -16,7 +16,7 @@ from .views import (
     CatalogCoursesView, CatalogCourseDetailView, MyCreationCoursesView, PaidCourseCreateView, FreeCourseCreateView,
     ModuleCreateView, MyLessonsView, LessonCreatedView, LessonContentCreateView, TaskSubmissionsForReviewView,
     TaskSubmissionReviewView, ModerationCoursesView,
-    # ModerationModulesView,
+    ModerationModulesView,
 )
 
 app_name = 'musicApi'
@@ -50,5 +50,6 @@ urlpatterns = [
     path('mycreations/submissions/<int:task_id>', TaskSubmissionReviewView.as_view(), name='my-creations-submissions-review'),
 
     path('moderation/', ModerationCoursesView.as_view(), name='moderation-courses'),
-    # path('moderation/<str:slug>/', ModerationModulesView.as_view(), name='moderation-modules'),
+    path('moderation/<str:slug>/', ModerationModulesView.as_view(), name='moderation-modules'),
+    path('moderation/<str:slug>/modules/<int:module_id>/<int:lesson_id>/<int:content_id>/', MyCourseContentView.as_view(), name='moderation-content'),
 ]

@@ -4,7 +4,8 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.db.models import Exists, OuterRef
 from django.shortcuts import render
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, inline_serializer
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, \
+    inline_serializer, OpenApiResponse
 from rest_framework import generics, status, serializers
 
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
@@ -959,35 +960,69 @@ class ModerationCoursesView(ListAPIView):
 
 
 # Представление для просмотра модулей курса и принятия решения
-# @extend_schema(
-#     summary='Get moderate modules list',
-#     request=ModuleSerializer,
-#     examples=[
-#         OpenApiExample(
-#             name='Get moderate modules list',
-#             value={
-#                 "title": "module_title"
-#             }
-#         )
-#     ]
-# )
-# class ModerationModulesView(ListAPIView):
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = ModuleSerializer
-#
-#     def get_course(self):
-#         slug = self.kwargs.get('slug')
-#         return Course.objects.get(slug=slug, approval=False)
-#
-#     def get_queryset(self):
-#         user = self.request.user
-#         if user.is_moderator is True:
-#             course = self.get_course()
-#             return Module.objects.filter(course=course).order_by('id')
-#         elif user.is_moderator is False:
-#             return []
-#
-#     def patch(self, request, *args, **kwargs):
-#         course = self.get_course()
-#         serializer_approval_course = CourseDetailSerializer
-#
+@extend_schema(
+    summary='Get moderate modules list',
+    request=ModuleSerializer,
+    examples=[
+        OpenApiExample(
+            name='Get moderate modules list',
+            value={
+                "title": "module_title"
+            }
+        )
+    ]
+)
+class ModerationModulesView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ModuleSerializer
+
+    def get_course(self):
+        slug = self.kwargs.get('slug')
+        return Course.objects.get(slug=slug, approval=False)
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_moderator is True:
+            course = self.get_course()
+            return Module.objects.filter(course=course).order_by('id')
+        elif user.is_moderator is False:
+            return []
+
+    @extend_schema(
+        summary='Approve or disapprove course',
+        request=CourseDetailSerializer,
+        responses={
+            200: OpenApiExample(
+                name='Success',
+                value={'detail': 'Moderate course successfully'}
+            ),
+            400: OpenApiExample(
+                name='Bad request',
+                value={'detail': 'Invalid input.'}
+            )
+        },
+        examples=[
+            OpenApiExample(
+                name='Approve',
+                value={'action': 'approve'}
+            ),
+            OpenApiExample(
+                name='Disapprove',
+                value={'action': 'disapprove'}
+            )
+        ]
+    )
+    def patch(self, request, *args, **kwargs):
+        course = self.get_course()
+        action = self.kwargs.get('action')
+
+        if action not in ['approve', 'disapprove']:
+            return Response({'detail': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if action == 'approve':
+            course.approval = True
+        elif action == 'disapprove':
+            course.approval = False
+        course.save()
+        return Response({'detail': 'Moderate course successfully'}, status=status.HTTP_200_OK)
+
