@@ -54,9 +54,9 @@ class CreateUserView(CreateAPIView):
             self.create(request, *args, **kwargs)
             user = authenticate(username=request.data['username'], password=request.data['password'])
             login(request=request, user=user)
-            return Response({'detail': 'User created successfully.'})
+            return Response({'detail': 'User created successfully.'}, status=status.HTTP_201_CREATED)
         else:
-            return Response({'detail': 'Bad request'})
+            return Response({'detail': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Представление для входа пользователя в систему
@@ -82,15 +82,15 @@ class LoginView(GenericAPIView):
         password = request.data.get('password')
 
         if not username or not password:
-            return Response({'error': 'Please provide both username and password'})
+            return Response({'error': 'Please provide both username and password'}, status=status.HTTP_204_NO_CONTENT)
 
         user = authenticate(username=username, password=password)
 
         if user is not None:
             login(request=request, user=user)
-            return Response({'success': 'Login in successfully'})
+            return Response({'success': 'Login in successfully'}, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'Invalid username or password'})
+            return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # Представление для получения информации о текущем пользователе
@@ -116,7 +116,7 @@ class AboutMeView(RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         instance = self.request.user
         serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # Представление обновления личной информации
@@ -149,9 +149,9 @@ class UpdateUserView(UpdateAPIView):
         serializer = self.get_serializer(instance=instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'User updated successfully.'})
+            return Response({'message': 'User updated successfully.'}, status=status.HTTP_201_CREATED)
         else:
-            return Response({'error': serializer.errors})
+            return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Представление для выхода пользователя из системы
@@ -175,7 +175,7 @@ class LogoutView(RetrieveAPIView):
         return Response(
             {
                 'message': 'You have been logged out.'
-            }
+            }, status=status.HTTP_200_OK
         )
 
 
@@ -204,7 +204,7 @@ class PasswordResetRequestView(CreateAPIView):
             )
             # Отправить письмо с инструкцией по сбросу пароля
             send_reset_code_email(reset_request.email, reset_request.reset_code)
-            return Response({'message': 'Password reset request sent.'})
+            return Response({'message': 'Password reset request sent.'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -235,13 +235,13 @@ class PasswordResetConfirmView(APIView):
             try:
                 reset_request: PasswordResetRequest = PasswordResetRequest.objects.get(reset_code=reset_code)
             except ObjectDoesNotExist:
-                return Response({'message': 'Invalid reset code'})
+                return Response({'message': 'Invalid reset code'}, status=status.HTTP_400_BAD_REQUEST)
 
             user = CustomAccount.objects.get(email=reset_request.email)
             user.password = new_password
             user.save()
             reset_request.delete()
-            return Response({'message': f'Password reset successful.{new_password}'})
+            return Response({'message': f'Password reset successful.'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
