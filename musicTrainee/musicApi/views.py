@@ -55,7 +55,7 @@ class CreateUserView(CreateAPIView):
             self.create(request, *args, **kwargs)
             user = authenticate(username=request.data['username'], password=request.data['password'])
             login(request=request, user=user)
-            return Response({'detail': 'User created successfully.'}, status=status.HTTP_201_CREATED)
+            return Response({'detail': 'User created successfully.'}, status=status.HTTP_200_OK)
         else:
             return Response({'detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
