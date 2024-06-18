@@ -22,13 +22,13 @@ app_name = 'musicApi'
 
 urlpatterns = [
     # path('hello/', hello_world_view, name='hello_world'),
-    path('aboutme/', AboutMeView.as_view(), name='about-me'),
-    path('singup/', CreateUserView.as_view(), name='sing-up'),
-    path('logout/', LogoutView.as_view(), name='logout'),
-    path('login/', LoginView.as_view(), name='logout'),
-    path('reset-request/', PasswordResetRequestView.as_view(), name='reset-request-password'),
-    path('reset-confirm/', PasswordResetConfirmView.as_view(), name='reset-confirm-password'),
-    path('update/', UpdateUserView.as_view(), name='update-user'),
+    path('auth/aboutme/', AboutMeView.as_view(), name='about-me'),
+    path('auth/singup/', CreateUserView.as_view(), name='sing-up'),
+    path('auth/logout/', LogoutView.as_view(), name='logout'),
+    path('auth/login/', LoginView.as_view(), name='logout'),
+    path('auth/reset-request/', PasswordResetRequestView.as_view(), name='reset-request-password'),
+    path('auth/reset-confirm/', PasswordResetConfirmView.as_view(), name='reset-confirm-password'),
+    path('auth/update/', UpdateUserView.as_view(), name='update-user'),
 
     path('mycourses/', MyCoursesView.as_view(), name='my-courses'),
     path('mycourses/<str:slug>/', MyCourseDetailView.as_view(), name='my-course-details'),

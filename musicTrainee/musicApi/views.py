@@ -4,13 +4,14 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.db.models import Exists, OuterRef
 from django.shortcuts import render
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
-from rest_framework import generics, status
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, inline_serializer
+from rest_framework import generics, status, serializers
 
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveAPIView, CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView, \
-    get_object_or_404, ListAPIView
+    get_object_or_404, ListAPIView, GenericAPIView
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -30,22 +31,23 @@ from slugify import slugify
 
 
 # Представление для создания нового пользователя
+@extend_schema(
+    summary='Create a new user',
+    request=ProfileCreateSerializer,
+    examples=[
+        OpenApiExample(
+            name='Account creation',
+            value={
+                'username': 'username',
+                'email': 'user_email',
+                'password': 'password',
+            }
+        )
+    ]
+)
 class CreateUserView(CreateAPIView):
     serializer_class = ProfileCreateSerializer
 
-    @extend_schema(
-        summary='Create a new user',
-        examples=[
-            OpenApiExample(
-                name='Account creation',
-                value={
-                    'username': 'username',
-                    'email': 'user_email',
-                    'password': 'password',
-                }
-            )
-        ]
-    )
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -58,24 +60,24 @@ class CreateUserView(CreateAPIView):
 
 
 # Представление для входа пользователя в систему
-class LoginView(APIView):
+@extend_schema(
+    summary='Login to MusicTrainee',
+    request=ProfileLoginSerializer,
+    examples=[
+        OpenApiExample(
+            name='Example for Sing In',
+            # description='Login to MusicTrainee',
+            value={
+                'username': 'username',
+                'password': 'password',
+            }
+        )
+    ]
+)
+class LoginView(GenericAPIView):
     serializer_class = ProfileLoginSerializer
 
-    @extend_schema(
-        summary='Login to MusicTrainee',
-        request=ProfileLoginSerializer,
-        examples=[
-            OpenApiExample(
-                name='Example for Sing In',
-                # description='Login to MusicTrainee',
-                value={
-                    'username': 'username',
-                    'password': 'password',
-                }
-            )
-        ]
-    )
-    def post(self, request: Request, format=None) -> Response:
+    def post(self, request, *args, **kwargs):
         username = request.data.get('username')
         password = request.data.get('password')
 
@@ -94,6 +96,7 @@ class LoginView(APIView):
 # Представление для получения информации о текущем пользователе
 @extend_schema(
     summary='About Me',
+    request=ProfileInfoSerializer,
     examples=[
         OpenApiExample(
             name='Profile Information',
@@ -116,11 +119,27 @@ class AboutMeView(RetrieveAPIView):
         return Response(serializer.data)
 
 
+# Представление обновления личной информации
+@extend_schema(
+    summary='Update user information',
+    request=UserPatchUpdateSerializer,
+    examples=[
+        OpenApiExample(
+            name='Profile Information',
+            value={
+                "first_name": "string",
+                "last_name": "string",
+                "email": "user@example.com",
+                "avatar": "string",
+                "is_moderator": "true"
+            }
+
+        )
+    ]
+)
 class UpdateUserView(UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserPatchUpdateSerializer
-
-    # queryset = CustomAccount.objects.all()
 
     def get_object(self):
         return self.request.user
@@ -136,22 +155,22 @@ class UpdateUserView(UpdateAPIView):
 
 
 # Представление для выхода пользователя из системы
-class LogoutView(APIView):
+@extend_schema(
+    summary='Logout from MusicTrainee',
+    examples=[
+        OpenApiExample(
+            name='Example for Logout',
+            value={
+                'message': 'You have been logged out.'
+            }
+        )
+    ]
+)
+class LogoutView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProfileInfoSerializer
 
-    @extend_schema(
-        summary='Logout from MusicTrainee',
-        examples=[
-            OpenApiExample(
-                name='Example for Logout',
-                value={
-                    'message': 'You have been logged out.'
-                }
-            )
-        ]
-    )
-    def get(self, request: Request, format=None) -> Response:
+    def retrieve(self, request, *args, **kwargs) -> Response:
         logout(request)
         return Response(
             {
@@ -161,21 +180,21 @@ class LogoutView(APIView):
 
 
 # Представление для создания запроса на сброс пароля
+@extend_schema(
+    summary='Password reset request',
+    request=PasswordResetRequestSerializer,
+    examples=[
+        OpenApiExample(
+            name='Example for Password Reset',
+            value={
+                'email': 'your_email@example.com',
+            }
+        )
+    ]
+)
 class PasswordResetRequestView(CreateAPIView):
     serializer_class = PasswordResetRequestSerializer
 
-    @extend_schema(
-        summary='Password reset request',
-        request=PasswordResetRequestSerializer,
-        examples=[
-            OpenApiExample(
-                name='Example for Password Reset',
-                value={
-                    'email': 'your_email@example.com',
-                }
-            )
-        ]
-    )
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -191,22 +210,22 @@ class PasswordResetRequestView(CreateAPIView):
 
 
 # Представление для подтверждения кода для сброса и ввода нового пароля
+@extend_schema(
+    summary='Password reset confirm',
+    request=PasswordResetConfirmSerializer,
+    examples=[
+        OpenApiExample(
+            name='Example for Password Reset Confirm',
+            value={
+                'reset_code': 'your_reset_code',
+                'new_password': 'your_new_password',
+            }
+        )
+    ]
+)
 class PasswordResetConfirmView(APIView):
     serializer_class = PasswordResetConfirmSerializer
 
-    @extend_schema(
-        summary='Password reset confirm',
-        request=PasswordResetConfirmSerializer,
-        examples=[
-            OpenApiExample(
-                name='Example for Password Reset Confirm',
-                value={
-                    'reset_code': 'your_reset_code',
-                    'new_password': 'your_new_password',
-                }
-            )
-        ]
-    )
     def post(self, request, *args, **kwargs):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         if serializer.is_valid():
@@ -218,7 +237,7 @@ class PasswordResetConfirmView(APIView):
             except ObjectDoesNotExist:
                 return Response({'message': 'Invalid reset code'})
 
-            user: CustomAccount = CustomAccount.objects.get(email=reset_request.email)
+            user = CustomAccount.objects.get(email=reset_request.email)
             user.password = new_password
             user.save()
             reset_request.delete()
@@ -227,23 +246,57 @@ class PasswordResetConfirmView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class MyCoursesView(RetrieveAPIView):
+# Представление для просмотра курсов пользователя
+@extend_schema(
+    summary='Get my courses',
+    request=CourseDetailSerializer,
+    examples=[
+        OpenApiExample(
+            name='My Courses',
+            value={
+                "title": "course_title",
+                "description": "course_description",
+                "target_description": "Target description",
+                "logo": "logo_path",
+                "price": "course_price",
+                "creator_username": "course_creator",
+                "created_at_formatted": "DD.MM.YYYY HH:MM",
+                "approval": 'true/false',
+                "slug": "course_slug"
+            }
+        )
+    ]
+)
+class MyCoursesView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CourseDetailSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.request.user
-        courses = Course.objects.filter(owner=instance).all()
-        serializer = self.get_serializer(courses, many=True)
-        response_data = [
-            obj
-            if obj['approval']
-            else {'title': obj['title'], 'message': 'Course is not approval'}
-            for obj in serializer.data
-        ]
-        return Response(response_data)
+    def get_queryset(self):
+        user = self.request.user
+        return Course.objects.filter(owner=user).order_by('id')
 
 
+# Представление для просмотра информиации о курсе
+@extend_schema(
+    summary='Get course detail information',
+    request=CourseDetailSerializer,
+    examples=[
+        OpenApiExample(
+            name='My Course Detail',
+            value={
+                "title": "course_title",
+                "description": "course_description",
+                "target_description": "Target description",
+                "logo": "logo_path",
+                "price": "course_price",
+                "creator_username": "course_creator",
+                "created_at_formatted": "DD.MM.YYYY HH:MM",
+                "approval": 'true/false',
+                "slug": "course_slug"
+            }
+        )
+    ]
+)
 class MyCourseDetailView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CourseDetailSerializer
@@ -258,40 +311,78 @@ class MyCourseDetailView(RetrieveAPIView):
             return Response({'message': 'Course is not approval'})
 
 
-class MyCourseModulesView(RetrieveAPIView):
+# Представление для просмотра модулей курса
+@extend_schema(
+    summary='Get modules list',
+    request=CourseDetailSerializer,
+    examples=[
+        OpenApiExample(
+            name='Course modules',
+            value={
+                'title': 'module_title',
+            }
+        )
+    ]
+)
+class MyCourseModulesView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ModuleSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.kwargs.get('slug')
-        course = get_object_or_404(Course.objects.prefetch_related('modules'), slug=instance)
-        modules = course.modules.all()
-        serializer = self.get_serializer(modules, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        slug = self.kwargs.get('slug')
+        course = get_object_or_404(Course, slug=slug)
+        return Module.objects.filter(course=course)
 
 
-class MyLessonsView(RetrieveAPIView):
+# Представление для просмотра уроков модуля
+@extend_schema(
+    summary='Get lessons from modules list',
+    request=LessonSerializer,
+    examples=[
+        OpenApiExample(
+            name='Lessons module',
+            value={
+                "title": "Module title",
+                "contents": [
+                    {
+                        "id": "content_id",
+                        "type_content": "Content title"
+                    }
+                ]
+            }
+        )
+    ]
+)
+class MyLessonsView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = LessonSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        slug = kwargs.get('slug')
-        module_id = kwargs.get('module_id')
+    def get_queryset(self):
+        slug = self.kwargs.get('slug')
+        module_id = self.kwargs.get('module_id')
 
         course = get_object_or_404(Course, slug=slug)
-        module = get_object_or_404(Module.objects.prefetch_related('lessons'), id=module_id, course=course)
-
-        lessons = module.lessons.all()
-        serializer = self.get_serializer(lessons, many=True)
-        return Response(serializer.data)
+        module = get_object_or_404(Module, id=module_id, course=course)
+        return Lesson.objects.filter(module=module)
 
 
+# Представление для просмотра контента урока
+@extend_schema(
+    summary='Get a content object',
+    request=ContentSerializer,
+    examples=[
+        OpenApiExample(
+            name='Content object',
+            value={
+                "title": "Content title",
+                "type_content": "content"
+            }
+        )
+    ]
+)
 class MyCourseContentView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
-    # queryset = Content.objects.all()
     serializer_class = ContentSerializer
-
-    # lookup_field = 'id'
 
     def get_queryset(self):
         slug = self.kwargs.get('slug')
@@ -352,12 +443,6 @@ class MyCourseContentView(RetrieveAPIView):
             'application/json': AnswerSerializer,
             'multipart/form-data': TaskSubmissionSerializer,
         },
-        responses={
-            200: OpenApiExample(
-                name='Correct answer response',
-                value={'message': 'Correct answer'}
-            ),
-        },
         examples=[
             OpenApiExample(
                 'Example for post answer',
@@ -400,43 +485,116 @@ class MyCourseContentView(RetrieveAPIView):
             return Response({'error': 'This content type dont support answering task'})
 
 
+# Представление для просмотра каталога
 @extend_schema(
     summary='Catalog courses list',
+    request=CourseDetailSerializer,
+    examples=[
+        OpenApiExample(
+            name='My Course Detail',
+            value={
+                "title": "course_title",
+                "description": "course_description",
+                "target_description": "Target description",
+                "logo": "logo_path",
+                "price": "course_price",
+                "creator_username": "course_creator",
+                "created_at_formatted": "DD.MM.YYYY HH:MM",
+                "approval": 'true/false',
+                "slug": "course_slug"
+            }
+        )
+    ]
 )
-class CatalogCoursesView(RetrieveAPIView):
+class CatalogCoursesView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CourseDetailSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        courses = Course.objects.all()
-        serializer = self.get_serializer(courses, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return Course.objects.all()
 
 
+# Представление для просмотра курса с каталога
 @extend_schema(
     summary='Catalog detail course',
+    request=CourseDetailSerializer,
+    examples=[
+        OpenApiExample(
+            name='My Course Detail',
+            value={
+                "title": "course_title",
+                "description": "course_description",
+                "target_description": "Target description",
+                "logo": "logo_path",
+                "price": "course_price",
+                "creator_username": "course_creator",
+                "created_at_formatted": "DD.MM.YYYY HH:MM",
+                "approval": 'true/false',
+                "slug": "course_slug"
+            }
+        )
+    ]
 )
 class CatalogCourseDetailView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CourseDetailSerializer
 
+    def get_queryset(self):
+        slug = self.kwargs.get('slug')
+        return get_object_or_404(Course, slug=slug)
+
     def retrieve(self, request, *args, **kwargs):
-        instance = self.kwargs.get('slug')
-        course = Course.objects.filter(slug=instance).first()
-        serializer = self.get_serializer(course)
+        instance = self.get_queryset()
+        serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
 
-class MyCreationCoursesView(RetrieveAPIView):
+# Представление для просмотра курсов, созданных пользователем
+@extend_schema(
+    summary='Get user created courses',
+    request=CourseDetailSerializer,
+    examples=[
+        OpenApiExample(
+            name='My created courses',
+            value={
+                "title": "course_title",
+                "description": "course_description",
+                "target_description": "Target description",
+                "logo": "logo_path",
+                "price": "course_price",
+                "creator_username": "course_creator",
+                "created_at_formatted": "DD.MM.YYYY HH:MM",
+                "approval": "true/false",
+                "slug": "course_slug"
+            }
+        )
+    ]
+)
+class MyCreationCoursesView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CourseDetailSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        my_creations = Course.objects.filter(creator=request.user).all()
-        serializer = self.get_serializer(my_creations, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        user = self.request.user
+        return Course.objects.filter(creator=user).order_by('id')
 
 
+# Представление для создания платного курса
+@extend_schema(
+    summary='Create new paid course',
+    request=PaidCourseCreateSerializer,
+    examples=[
+        OpenApiExample(
+            name='New course',
+            value={
+                "title": "course_title",
+                "target_description": "target-description",
+                "description": "course_description",
+                "price": "course_price",
+            }
+        )
+    ]
+)
 class PaidCourseCreateView(CreateAPIView):
     queryset = Course
     serializer_class = PaidCourseCreateSerializer
@@ -448,6 +606,21 @@ class PaidCourseCreateView(CreateAPIView):
         serializer.save(creator=self.request.user, slug=slug)
 
 
+# Представление для создания бесплатного курса
+@extend_schema(
+    summary='Create new free course',
+    request=FreeCourseCreateSerializer,
+    examples=[
+        OpenApiExample(
+            name='New course',
+            value={
+                "title": "course_title",
+                "target_description": "target-description",
+                "description": "course_description",
+            }
+        )
+    ]
+)
 class FreeCourseCreateView(CreateAPIView):
     queryset = Course
     serializer_class = FreeCourseCreateSerializer
@@ -459,20 +632,53 @@ class FreeCourseCreateView(CreateAPIView):
         serializer.save(creator=self.request.user, slug=slug)
 
 
-class ModuleCreateView(RetrieveAPIView):
+# Представление для получения и создания новых модулей
+@extend_schema(
+    summary='Get a modules from course',
+    request=ModuleCreateSerializer,
+    examples=[
+        OpenApiExample(
+            name='Get a modules from course',
+            value=[
+                {
+                    "title": "module_title",
+                }
+            ]
+        )
+    ]
+)
+class ModuleCreateView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ModuleCreateSerializer
 
+    def get_course(self):
+        slug = self.kwargs.get('slug')
+        return get_object_or_404(Course, slug=slug)
+
+    def get_queryset(self):
+        course = self.get_course()
+        return Module.objects.filter(course=course)
+
     def retrieve(self, request, *args, **kwargs):
-        instance = self.kwargs.get('slug')
-        course = get_object_or_404(Course.objects.prefetch_related('modules'), slug=instance)
-        modules = course.modules.all()
-        serializer = self.get_serializer(modules, many=True)
+        instance = self.get_queryset()
+        serializer = self.get_serializer(instance, many=True)
         return Response(serializer.data)
 
+    @extend_schema(
+        summary='Create new module',
+        request=ModuleCreateSerializer,
+        examples=[
+            OpenApiExample(
+                name='Post new module',
+                value={
+                    "title": "module_title",
+                }
+
+            )
+        ]
+    )
     def post(self, request, *args, **kwargs):
-        instance = self.kwargs.get('slug')
-        course = get_object_or_404(Course, slug=instance)
+        course = self.get_course()
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save(course=course)
@@ -480,6 +686,30 @@ class ModuleCreateView(RetrieveAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Представление для получения созданных уроков в модуле
+@extend_schema(
+    summary='Get lessons from module',
+    request=LessonSerializer,
+    examples=[
+        OpenApiExample(
+            name='Get lessons from module',
+            value=[
+                "module_title",
+                [
+                    {
+                        "title": "lesson_title",
+                        "contents": [
+                            {
+                                "id": "content_id",
+                                "type_content": "content"
+                            },
+                        ]
+                    },
+                ]
+            ]
+        )
+    ]
+)
 class LessonCreatedView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = LessonSerializer
@@ -508,6 +738,46 @@ class LessonCreatedView(RetrieveAPIView):
         return Response(response)
 
 
+# Представление для создания уроков состоящий из модулей
+@extend_schema(
+    summary='Create contents to lesson',
+    request=inline_serializer(
+        name='LessonContentCreateRequest',
+        fields={
+            'lesson': LessonCreateSerializer(),
+            'contents': serializers.ListField(
+                child=inline_serializer(
+                    name='ContentItem',
+                    fields={
+                        'content_type': serializers.ChoiceField(
+                            choices=['text', 'file', 'image', 'video', 'question', 'task']),
+                        'text': TextSerializer(required=False),
+                        'file': FileSerializer(required=False),
+                        'image': ImageSerializer(required=False),
+                        'video': VideoSerializer(required=False),
+                        'question': QuestionSerializer(required=False),
+                        'task': TaskSerializer(required=False),
+                    }
+                )
+            )
+        }
+    ),
+    responses={
+        201: inline_serializer(
+            name='LessonContentCreateResponse',
+            fields={
+                'lesson': LessonCreateSerializer(),
+                'content': ContentSerializer(many=True),
+            }
+        ),
+        400: inline_serializer(
+            name='LessonContentCreateErrorResponse',
+            fields={
+                'error': serializers.CharField()
+            }
+        ),
+    },
+)
 class LessonContentCreateView(CreateAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -552,7 +822,11 @@ class LessonContentCreateView(CreateAPIView):
             if content_serializer.is_valid():
                 item = content_serializer.save()
                 content_type_instance = ContentType.objects.get(model=content_type)
-                created_content = Content.objects.create(lesson=lesson, content_type=content_type_instance, object_id=item.id)
+                created_content = Content.objects.create(
+                    lesson=lesson,
+                    content_type=content_type_instance,
+                    object_id=item.id
+                )
                 created_contents.append(created_content)
             else:
                 return Response(content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -564,6 +838,22 @@ class LessonContentCreateView(CreateAPIView):
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
+# Представление для получения списка домашнего задания на проверку
+@extend_schema(
+    summary='Get unchecked tasks',
+    request=TaskSerializer,
+    examples=[
+        OpenApiExample(
+            name='Get unchecked tasks',
+            value={
+                "task": "task_id",
+                "student": "student_id",
+                "file": "path/to/file",
+                "submitted_at": ""
+            }
+        )
+    ]
+)
 class TaskSubmissionsForReviewView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSubmissionSerializer
@@ -574,6 +864,22 @@ class TaskSubmissionsForReviewView(ListAPIView):
         ).filter(has_review=False)
 
 
+# Представление для оценки домашнего задания
+@extend_schema(
+    summary='Get task for review',
+    request=TaskReviewSerializer,
+    examples=[
+        OpenApiExample(
+            name='Get task for review',
+            value={
+                "task": "task_id",
+                "student": "student_id",
+                "file": "path/to/file.txt",
+                "submitted_at": ""
+            }
+        )
+    ]
+)
 class TaskSubmissionReviewView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSubmissionSerializer
@@ -596,8 +902,8 @@ class TaskSubmissionReviewView(RetrieveAPIView):
                 name='Submits a task for review',
                 value={
                     "review": {
-                        "is_correct": True,
-                        "comment": "Optional"
+                        "is_correct": "true/false",
+                        "comment": "optional"
                     }
                 }
             )
@@ -615,5 +921,3 @@ class TaskSubmissionReviewView(RetrieveAPIView):
             return Response(review_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(review_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
