@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from accounts.models import CustomAccount
 
@@ -30,6 +31,11 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomAccount
         fields = ['username', 'email', 'password']
+
+    def validate_email(self, value):
+        if CustomAccount.objects.filter(email=value).exists():
+            raise ValidationError("This email is already in use.")
+        return value
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):

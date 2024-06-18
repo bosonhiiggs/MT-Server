@@ -921,3 +921,72 @@ class TaskSubmissionReviewView(RetrieveAPIView):
             return Response(review_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(review_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Представление для просмотра заявок на модерацию
+@extend_schema(
+    summary='Get moderate courses list',
+    request=CourseDetailSerializer,
+    examples=[
+        OpenApiExample(
+            name='Get moderate courses list',
+            value={
+                "title": "course_title",
+                "description": "course_description",
+                "target_description": "Target description",
+                "logo": "logo_path",
+                "price": "course_price",
+                "creator_username": "course_creator",
+                "created_at_formatted": "DD.MM.YYYY HH:MM",
+                "approval": "true/false",
+                "slug": "course_slug"
+            }
+        )
+    ]
+)
+class ModerationCoursesView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseDetailSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        print(user.is_moderator)
+        if user.is_moderator is True:
+            return Course.objects.filter(approval=False).order_by('id')
+        else:
+            return []
+
+
+# Представление для просмотра модулей курса и принятия решения
+# @extend_schema(
+#     summary='Get moderate modules list',
+#     request=ModuleSerializer,
+#     examples=[
+#         OpenApiExample(
+#             name='Get moderate modules list',
+#             value={
+#                 "title": "module_title"
+#             }
+#         )
+#     ]
+# )
+# class ModerationModulesView(ListAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = ModuleSerializer
+#
+#     def get_course(self):
+#         slug = self.kwargs.get('slug')
+#         return Course.objects.get(slug=slug, approval=False)
+#
+#     def get_queryset(self):
+#         user = self.request.user
+#         if user.is_moderator is True:
+#             course = self.get_course()
+#             return Module.objects.filter(course=course).order_by('id')
+#         elif user.is_moderator is False:
+#             return []
+#
+#     def patch(self, request, *args, **kwargs):
+#         course = self.get_course()
+#         serializer_approval_course = CourseDetailSerializer
+#

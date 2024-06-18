@@ -38,6 +38,45 @@ class CourseDetailSerializer(serializers.ModelSerializer):
         return obj.created.strftime('%d.%m.%Y %H:%M')
 
 
+class CourseApprovalSerializer(serializers.ModelSerializer):
+    creator_username = serializers.SerializerMethodField()
+    created_at_formatted = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Course
+        fields = [
+            'title',
+            'description',
+            'target_description',
+            'logo',
+            'price',
+            'creator_username',
+            'created_at_formatted',
+            'approval',
+            'slug'
+        ]
+        read_only_fields = [
+            'title',
+            'description',
+            'target_description',
+            'logo',
+            'price',
+            'creator_username',
+            'created_at_formatted',
+            'slug'
+        ]
+
+    @extend_schema_field(serializers.CharField())
+    def get_creator_username(self, obj):
+        if obj.creator.first_name and obj.creator.last_name:
+            return f'{obj.first_name} {obj.last_name}'
+        return obj.creator.username
+
+    @extend_schema_field(serializers.DateTimeField())
+    def get_created_at_formatted(self, obj):
+        return obj.created.strftime('%d.%m.%Y %H:%M')
+
+
 class PaidCourseCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
