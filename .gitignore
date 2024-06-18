@@ -87,6 +87,8 @@ local_settings.py
 
 .env
 db.sqlite3
+/musicTrainee/database/db.sqlite3
 
 /venv/
 /.env
+
