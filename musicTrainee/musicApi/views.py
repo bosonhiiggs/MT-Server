@@ -50,13 +50,14 @@ class CreateUserView(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        # print(serializer.is_valid)
         if serializer.is_valid():
             self.create(request, *args, **kwargs)
             user = authenticate(username=request.data['username'], password=request.data['password'])
             login(request=request, user=user)
             return Response({'detail': 'User created successfully.'}, status=status.HTTP_201_CREATED)
         else:
-            return Response({'detail': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Представление для входа пользователя в систему
