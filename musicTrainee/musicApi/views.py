@@ -128,7 +128,7 @@ class LoginView(GenericAPIView):
         password = request.data.get('password')
 
         if not username or not password:
-            return Response({'error': 'Please provide both username and password'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'error': 'Please provide both username and password'}, status=status.HTTP_400_BAD_REQUEST)
 
         user = authenticate(username=username, password=password)
 
@@ -137,7 +137,7 @@ class LoginView(GenericAPIView):
                 login(request=request, user=user)
                 return Response({'success': 'Login in successfully'}, status=status.HTTP_200_OK)
 
-            old_confirm_request = PasswordResetRequest.objects.get(email=user.email)
+            old_confirm_request = PasswordResetRequest.objects.filter(email=user.email).last()
             if old_confirm_request is not None:
                 send_confirm_code_email(old_confirm_request.email, old_confirm_request.reset_code)
                 return Response({'detail': 'Confirm code sent to email', }, status=status.HTTP_201_CREATED)
