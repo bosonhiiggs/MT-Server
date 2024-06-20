@@ -16,7 +16,7 @@ from .views import (
     CatalogCoursesView, CatalogCourseDetailView, MyCreationCoursesView, PaidCourseCreateView, FreeCourseCreateView,
     ModuleCreateView, MyLessonsView, LessonCreatedView, LessonContentCreateView, TaskSubmissionsForReviewView,
     TaskSubmissionReviewView, ModerationCoursesView,
-    ModerationModulesView,
+    ModerationModulesView, ConfirmUserView,
 )
 
 app_name = 'musicApi'
@@ -25,6 +25,7 @@ urlpatterns = [
     # path('hello/', hello_world_view, name='hello_world'),
     path('auth/aboutme/', AboutMeView.as_view(), name='about-me'),
     path('auth/signup/', CreateUserView.as_view(), name='sing-up'),
+    path('auth/signup/confirm', ConfirmUserView.as_view(), name='sing-up-confirm'),
     path('auth/logout/', LogoutView.as_view(), name='logout'),
     path('auth/login/', LoginView.as_view(), name='logout'),
     path('auth/reset-request/', PasswordResetRequestView.as_view(), name='reset-request-password'),
