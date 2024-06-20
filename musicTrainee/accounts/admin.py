@@ -18,9 +18,10 @@ class AccountAdmin(admin.ModelAdmin):
         'is_active',
         'is_staff',
         'avatar',
+        'is_activated',
         'is_moderator',
     )
-    fields = ['username', 'password', 'first_name', 'last_name', 'email', 'is_active', 'is_staff', 'is_moderator']
+    fields = ['username', 'password', 'first_name', 'last_name', 'email', 'is_activated', 'is_staff', 'is_moderator']
     # ordering = 'username'
 
 

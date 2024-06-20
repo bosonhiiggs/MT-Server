@@ -38,6 +38,7 @@ class CustomAccount(AbstractUser, DirtyFieldsMixin):
         null=True,
         blank=True
     )
+    is_activated = models.BooleanField(default=False)
     is_moderator = models.BooleanField(default=False)
 
     @property

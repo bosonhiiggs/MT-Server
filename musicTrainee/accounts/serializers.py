@@ -10,7 +10,7 @@ class ProfileInfoSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = CustomAccount
-        fields = ['username', 'first_name', 'last_name', 'email', 'avatar', 'is_moderator']
+        fields = ['username', 'first_name', 'last_name', 'email', 'avatar', 'is_activated', 'is_moderator']
 
 
 class ProfileLoginSerializer(serializers.ModelSerializer):

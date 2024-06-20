@@ -102,10 +102,14 @@ class LoginView(GenericAPIView):
         OpenApiExample(
             name='Profile Information',
             value={
-                'id': 0,
+                # 'id': 0,
                 'username': 'username',
+                'first_name': 'name',
+                'last_name': 'surname',
+                'email': 'user@email.auth',
                 'avatar': 'path/to/avatar.png',
-                'is_moderator': 'true'
+                'is_activated': 'true/false',
+                'is_moderator': 'true/fasle',
             }
         )
     ]
