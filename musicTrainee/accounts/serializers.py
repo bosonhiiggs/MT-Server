@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from accounts.models import CustomAccount
+from accounts.models import CustomAccount, PasswordResetRequest
 
 
 class ProfileInfoSerializer(serializers.ModelSerializer):
@@ -10,7 +10,7 @@ class ProfileInfoSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = CustomAccount
-        fields = ['username', 'first_name', 'last_name', 'email', 'avatar', 'is_moderator']
+        fields = ['username', 'first_name', 'last_name', 'email', 'avatar', 'is_activated', 'is_moderator']
 
 
 class ProfileLoginSerializer(serializers.ModelSerializer):
@@ -36,6 +36,10 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
         if CustomAccount.objects.filter(email=value).exists():
             raise ValidationError("This email is already in use.")
         return value
+
+
+class ProfileConfirmSerializer(serializers.Serializer):
+    confirm_code = serializers.CharField(required=True)
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):

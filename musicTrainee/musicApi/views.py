@@ -18,10 +18,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from accounts.common import generate_reset_code, send_reset_code_email
+from accounts.common import generate_reset_code, send_reset_code_email, send_confirm_code_email
 from accounts.models import PasswordResetRequest, CustomAccount
 from accounts.serializers import ProfileInfoSerializer, ProfileLoginSerializer, ProfileCreateSerializer, \
-    PasswordResetRequestSerializer, PasswordResetConfirmSerializer, UserPatchUpdateSerializer
+    PasswordResetRequestSerializer, PasswordResetConfirmSerializer, UserPatchUpdateSerializer, ProfileConfirmSerializer
 from catalog.models import Course, Module, Content, Task, TaskSubmission, Lesson, TaskReview
 from catalog.serializers import CourseDetailSerializer, ModuleSerializer, ContentSerializer, TextSerializer, \
     FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer, TaskSerializer, \
@@ -53,9 +53,54 @@ class CreateUserView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             self.create(request, *args, **kwargs)
-            user = authenticate(username=request.data['username'], password=request.data['password'])
+
+            confirm_request = PasswordResetRequest.objects.create(
+                email=serializer.validated_data['email'],
+                reset_code=generate_reset_code()
+            )
+            # Отправить письмо с инструкцией по сбросу пароля
+            send_confirm_code_email(confirm_request.email, confirm_request.reset_code)
+            return Response({'detail': 'Confirm code sent to email', },
+                            status=status.HTTP_201_CREATED)
+
+        else:
+            return Response({'detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Подтверждение учетной записи
+@extend_schema(
+    summary='Confirm a new user',
+    request=ProfileConfirmSerializer,
+    examples=[
+        OpenApiExample(
+            name='Account confirmation',
+            value={
+                'confirm_code': 'code'
+            }
+        )
+    ]
+)
+class ConfirmUserView(GenericAPIView):
+    serializer_class = ProfileConfirmSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            confirm_code = serializer.validated_data['confirm_code']
+
+            try:
+                reset_request: PasswordResetRequest = PasswordResetRequest.objects.get(reset_code=confirm_code)
+            except ObjectDoesNotExist:
+                return Response({'message': 'Invalid reset code'}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = CustomAccount.objects.get(email=reset_request.email)
+            user.is_activated = True
+            user.save()
+            reset_request.delete()
             login(request=request, user=user)
-            return Response({'detail': 'User created successfully.'}, status=status.HTTP_200_OK)
+
+            return Response({'detail': 'Account now is active, login successfully', }, status=status.HTTP_200_OK)
+
         else:
             return Response({'detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -88,8 +133,21 @@ class LoginView(GenericAPIView):
         user = authenticate(username=username, password=password)
 
         if user is not None:
-            login(request=request, user=user)
-            return Response({'success': 'Login in successfully'}, status=status.HTTP_200_OK)
+            if user.is_activated:
+                login(request=request, user=user)
+                return Response({'success': 'Login in successfully'}, status=status.HTTP_200_OK)
+
+            old_confirm_request = PasswordResetRequest.objects.get(email=user.email)
+            if old_confirm_request is not None:
+                send_confirm_code_email(old_confirm_request.email, old_confirm_request.reset_code)
+                return Response({'detail': 'Confirm code sent to email', }, status=status.HTTP_201_CREATED)
+            else:
+                confirm_request = PasswordResetRequest.objects.create(
+                    email=user.email,
+                    reset_code=generate_reset_code()
+                )
+                send_confirm_code_email(confirm_request.email, confirm_request.reset_code)
+                return Response({'detail': 'Confirm code sent to email', }, status=status.HTTP_201_CREATED)
         else:
             return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -102,10 +160,14 @@ class LoginView(GenericAPIView):
         OpenApiExample(
             name='Profile Information',
             value={
-                'id': 0,
+                # 'id': 0,
                 'username': 'username',
+                'first_name': 'name',
+                'last_name': 'surname',
+                'email': 'user@email.auth',
                 'avatar': 'path/to/avatar.png',
-                'is_moderator': 'true'
+                'is_activated': 'true/false',
+                'is_moderator': 'true/fasle',
             }
         )
     ]
@@ -1023,4 +1085,3 @@ class ModerationModulesView(ListAPIView):
             course.approval = False
         course.save()
         return Response({'detail': 'Moderate course successfully'}, status=status.HTTP_200_OK)
-
