@@ -45,6 +45,7 @@ ALLOWED_HOSTS = [
 ] + getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
 
 CSRF_TRUSTED_ORIGINS = [] + getenv("CSRF_TRUSTED_ORIGINS", "").split()
+# CSRF_TRUSTED_ORIGINS = True
 
 # Application definition
 
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'drf_spectacular',
+    'corsheaders',
 
     'catalog.apps.CatalogConfig',
     'musicApi.apps.MusicapiConfig',
@@ -67,12 +69,15 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'musicTrainee.urls'
 
