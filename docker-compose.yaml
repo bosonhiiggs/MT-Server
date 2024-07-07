@@ -10,7 +10,7 @@ services:
       - --bind
       - 0.0.0.0:8001
     ports:
-      - "8000:8000"
+      - "8000:8001"
     restart: always
     env_file:
       - .env
@@ -21,6 +21,8 @@ services:
         max-size: "200k"
     volumes:
       - ./musicTrainee/database:/app/database
+      - ./musicTrainee/web/static:/app/web/static
+      - ./musicTrainee/web/media:/app/web/media
 
   nginx:
     container_name: NGINX

@@ -44,7 +44,7 @@ ALLOWED_HOSTS = [
     "0.0.0.0",
 ] + getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
 
-CSRF_TRUSTED_ORIGINS = [] + getenv("CSRF_TRUSTED_ORIGINS", "").split()
+CSRF_TRUSTED_ORIGINS = ["http://0.0.0.0:8001", "http://localhost:8001"] + getenv("CSRF_TRUSTED_ORIGINS", "").split()
 # CSRF_TRUSTED_ORIGINS = True
 
 # Application definition

@@ -75,3 +75,15 @@ class UserPatchUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomAccount
         fields = ['first_name', 'last_name', 'email', 'avatar', 'is_moderator']
+
+        # def update(self, instance, validated_data):
+        #     for attr, value in validated_data.items():
+        #         setattr(instance, attr, value)
+        #
+        #     if 'avatar' in validated_data:
+        #         old_avatar = instance.avatar
+        #         if old_avatar and old_avatar != instance.default_avatar:
+        #             old_avatar.delete(save=False)
+        #
+        #     instance.save()
+        #     return instance

@@ -1,3 +1,4 @@
+import os.path
 from typing import TYPE_CHECKING
 
 from dirtyfields import DirtyFieldsMixin
@@ -5,6 +6,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Manager
+from django.conf import settings
 
 
 def user_avatar_path(instance: AbstractUser, filename: str) -> str:
@@ -16,7 +18,7 @@ def user_avatar_path(instance: AbstractUser, filename: str) -> str:
     :return: Путь для сохранения аватара пользователя.
     """
     return 'users/user_{user_path}/avatars/user_avatar.jpg'.format(
-        user_path="user_" + str(instance.username),
+        user_path=str(instance.username),
     )
 
 
@@ -76,6 +78,11 @@ class CustomAccount(AbstractUser, DirtyFieldsMixin):
 
         elif self.pk:
             old_avatar = CustomAccount.objects.get(pk=self.pk).avatar
+
+            if old_avatar and self.avatar != old_avatar:
+                old_avatar_path = os.path.join(settings.MEDIA_ROOT, old_avatar.name)
+                if os.path.isfile(old_avatar_path) and old_avatar.name != self.default_avatar:
+                    os.remove(old_avatar_path)
 
             if not self.avatar and old_avatar != self.default_avatar:
                 self.avatar = self.default_avatar
