@@ -134,6 +134,9 @@ class Content(models.Model):
     class Meta:
         ordering = ['order']
 
+    def __str__(self):
+        return str(self.item)
+
 
 class ItemBase(models.Model):
     """
@@ -252,3 +255,17 @@ class TaskReview(models.Model):
 
     if TYPE_CHECKING:
         objects: Manager
+
+
+def comments_content_directory_path(instance: "Comment", filename: str):
+    ...
+
+
+class CommentContent(models.Model):
+    """
+    Модель комментария к занятию
+    """
+    content = models.ForeignKey(Content, related_name="comments", on_delete=models.CASCADE)
+    autor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    text = models.TextField()
+    # attach_file = models.FileField(upload_to=comments_content_directory_path)

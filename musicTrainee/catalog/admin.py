@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Course, Content, Text, Module, File, Image, Video, Answer, Question, Task, TaskSubmission, ItemBase, \
-    Lesson
+    Lesson, CommentContent
 
 
 class QuestionsInline(admin.TabularInline):
@@ -132,4 +132,13 @@ class TaskSubmissionAdmin(admin.ModelAdmin):
         "file",
         "submitted_at",
 
+    ]
+
+
+@admin.register(CommentContent)
+class CommentContentAdmin(admin.ModelAdmin):
+    list_display = [
+        "autor",
+        "content",
+        "text",
     ]
