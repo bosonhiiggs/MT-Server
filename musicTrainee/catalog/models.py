@@ -266,6 +266,6 @@ class CommentContent(models.Model):
     Модель комментария к занятию
     """
     content = models.ForeignKey(Content, related_name="comments", on_delete=models.CASCADE)
-    autor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     text = models.TextField()
     # attach_file = models.FileField(upload_to=comments_content_directory_path)

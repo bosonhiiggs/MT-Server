@@ -138,7 +138,7 @@ class TaskSubmissionAdmin(admin.ModelAdmin):
 @admin.register(CommentContent)
 class CommentContentAdmin(admin.ModelAdmin):
     list_display = [
-        "autor",
+        "author",
         "content",
         "text",
     ]

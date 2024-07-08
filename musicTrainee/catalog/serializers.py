@@ -3,7 +3,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from catalog.models import Course, Module, Text, File, Image, Video, Question, Answer, Task, Content, TaskSubmission, \
-    Lesson, TaskReview
+    Lesson, TaskReview, CommentContent
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
@@ -16,6 +16,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = [
+            'id',
             'title',
             'description',
             'target_description',
@@ -168,15 +169,37 @@ class TaskReviewSerializer(serializers.ModelSerializer):
         }
 
 
+class CommentContentSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели CommentContent
+    """
+    author = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CommentContent
+        fields = ['id', 'author', 'text']
+
+    @extend_schema_field(serializers.CharField())
+    def get_author(self, obj):
+        if obj.author.first_name and obj.author.last_name:
+            return f'{obj.author.first_name} {obj.author.last_name}'
+        return obj.author.username
+
+    def create(self, validated_data):
+        validated_data['author'] = self.context['request'].user
+        return super().create(validated_data)
+
+
 class ContentSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Content
     """
     item = serializers.SerializerMethodField()
+    comments = CommentContentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Content
-        fields = ['item']
+        fields = ['item', 'comments']
 
     def get_item(self, instance) -> dict:
         if instance.content_type.model == 'text':
@@ -216,7 +239,7 @@ class ModuleSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Module
-        fields = ['title']
+        fields = ['id', 'title']
 
 
 class ModuleCreateSerializer(serializers.ModelSerializer):
@@ -230,7 +253,7 @@ class LessonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
-        fields = ['title', 'contents']
+        fields = ['id', 'title', 'contents']
 
     def get_contents(self, obj) -> list:
         contents_data = []

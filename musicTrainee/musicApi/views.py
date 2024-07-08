@@ -26,7 +26,7 @@ from catalog.models import Course, Module, Content, Task, TaskSubmission, Lesson
 from catalog.serializers import CourseDetailSerializer, ModuleSerializer, ContentSerializer, TextSerializer, \
     FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer, TaskSerializer, \
     TaskSubmissionSerializer, PaidCourseCreateSerializer, FreeCourseCreateSerializer, ModuleCreateSerializer, \
-    LessonSerializer, LessonCreateSerializer, ContentCreateSerializer, TaskReviewSerializer
+    LessonSerializer, LessonCreateSerializer, ContentCreateSerializer, TaskReviewSerializer, CommentContentSerializer
 
 from slugify import slugify
 
@@ -470,19 +470,24 @@ class MyCourseContentView(RetrieveAPIView):
 
         if content_type == 'Text':
             text_serializer = TextSerializer(instance.item)
-            return Response(text_serializer.data)
+            response_data = text_serializer.data
+            # return Response(text_serializer.data)
         elif content_type == 'File':
             file_serializer = FileSerializer(instance.item)
-            return Response(file_serializer.data)
+            response_data = file_serializer.data
+            # return Response(file_serializer.data)
         elif content_type == 'Image':
             image_serializer = ImageSerializer(instance.item)
-            return Response(image_serializer.data)
+            response_data = image_serializer.data
+            # return Response(image_serializer.data)
         elif content_type == 'Video':
             video_serializer = VideoSerializer(instance.item)
-            return Response(video_serializer.data)
+            response_data = video_serializer.data
+            # return Response(video_serializer.data)
         elif content_type == 'Question':
             question_serializer = QuestionSerializer(instance.item)
-            return Response(question_serializer.data)
+            response_data = question_serializer.data
+            # return Response(question_serializer.data)
         elif content_type == 'Task':
             task_serializer = TaskSerializer(instance.item)
             response_data = task_serializer.data
@@ -497,7 +502,11 @@ class MyCourseContentView(RetrieveAPIView):
                     review = reviews.first()
                     review_serializer = TaskReviewSerializer(review)
                     response_data['review'] = review_serializer.data
-            return Response(response_data)
+            # return Response(response_data)
+        else:
+            response_data = serializer.data
+
+        response_data["comments"] = CommentContentSerializer(instance.comments.all(), many=True).data
         return Response(serializer.data)
 
     @extend_schema(
@@ -546,6 +555,16 @@ class MyCourseContentView(RetrieveAPIView):
                 return Response({'message': 'Task already exists by your user'})
         else:
             return Response({'error': 'This content type dont support answering task'})
+
+
+class CommentCreateView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CommentContentSerializer
+
+    def perform_create(self, serializer):
+        content_id = self.kwargs.get('content_id')
+        content = get_object_or_404(Content, id=content_id)
+        serializer.save(content=content, author=self.request.user)
 
 
 # Представление для просмотра каталога
