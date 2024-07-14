@@ -26,7 +26,8 @@ from catalog.models import Course, Module, Content, Task, TaskSubmission, Lesson
 from catalog.serializers import CourseDetailSerializer, ModuleSerializer, ContentSerializer, TextSerializer, \
     FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer, TaskSerializer, \
     TaskSubmissionSerializer, PaidCourseCreateSerializer, FreeCourseCreateSerializer, ModuleCreateSerializer, \
-    LessonSerializer, LessonCreateSerializer, ContentCreateSerializer, TaskReviewSerializer, CommentContentSerializer
+    LessonSerializer, LessonCreateSerializer, ContentCreateSerializer, TaskReviewSerializer, CommentContentSerializer, \
+    CourseRatingSerializer
 
 from slugify import slugify
 
@@ -372,6 +373,31 @@ class MyCourseDetailView(RetrieveAPIView):
             return Response(serializer.data)
         else:
             return Response({'message': 'Course is not approval'})
+
+
+# Представление для публикации отзыва на курс
+@extend_schema(
+    summary="Post course review",
+    request=CourseRatingSerializer,
+    examples=[
+        OpenApiExample(
+            name='My course post review',
+            value={
+                "rating": "int_rate",
+                "review": "Message review"
+            }
+        )
+    ]
+)
+class MyCourseReView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseRatingSerializer
+
+    def perform_create(self, serializer):
+        slug = self.kwargs.get('slug')
+        user = self.request.user
+        course = get_object_or_404(Course, slug=slug)
+        serializer.save(course=course, user=user)
 
 
 # Представление для просмотра модулей курса

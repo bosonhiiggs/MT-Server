@@ -3,13 +3,39 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from catalog.models import Course, Module, Text, File, Image, Video, Question, Answer, Task, Content, TaskSubmission, \
-    Lesson, TaskReview, CommentContent
+    Lesson, TaskReview, CommentContent, CourseRating
+
+
+class CourseRatingSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для отзыва курсов
+    """
+    class Meta:
+        model = CourseRating
+        fields = [
+            'id',
+            'course',
+            'user',
+            'rating',
+            'review',
+        ]
+        read_only_fields = [
+            'id',
+            'user',
+            'course',
+        ]
+
+        def create(self, validated_data):
+            validated_data['user'] = self.context['request'].user
+            return super().create(validated_data)
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Course
     """
+    ratings = CourseRatingSerializer(many=True, read_only=True)
+    average_rating = serializers.SerializerMethodField()
     creator_username = serializers.SerializerMethodField()
     created_at_formatted = serializers.SerializerMethodField()
 
@@ -25,7 +51,9 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             'creator_username',
             'created_at_formatted',
             'approval',
-            'slug'
+            'slug',
+            'average_rating',
+            'ratings',
         ]
 
     @extend_schema_field(serializers.CharField())
@@ -37,6 +65,10 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.DateTimeField())
     def get_created_at_formatted(self, obj):
         return obj.created.strftime('%d.%m.%Y %H:%M')
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_average_rating(self, obj):
+        return obj.average_rating()
 
 
 class PaidCourseCreateSerializer(serializers.ModelSerializer):

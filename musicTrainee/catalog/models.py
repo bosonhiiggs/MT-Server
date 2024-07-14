@@ -9,6 +9,19 @@ from .fields import OrderField
 from django.conf import settings
 
 
+class CourseRating(models.Model):
+    """
+    Модель для отзывов на курс
+    """
+    course = models.ForeignKey("Course", related_name='ratings', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='ratings', on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField()
+    review = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('course', 'user')
+
+
 def course_logo_directory_path(instance: "Course", filename: str) -> str:
     """
     Функция определения пути логотипа курса.
@@ -65,6 +78,11 @@ class Course(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     logo = models.ImageField(null=True, blank=True, upload_to=course_logo_directory_path)
     approval = models.BooleanField(default=False)
+
+    def average_rating(self):
+        ratings = self.ratings.all()
+        if ratings.exists():
+            return ratings.aggregate(models.Avg('rating'))['rating__avg']
 
     def __str__(self):
         return f"{self.title}"

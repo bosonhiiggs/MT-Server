@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Course, Content, Text, Module, File, Image, Video, Answer, Question, Task, TaskSubmission, ItemBase, \
-    Lesson, CommentContent
+    Lesson, CommentContent, CourseRating
 
 
 class QuestionsInline(admin.TabularInline):
@@ -141,4 +141,14 @@ class CommentContentAdmin(admin.ModelAdmin):
         "author",
         "content",
         "text",
+    ]
+
+
+@admin.register(CourseRating)
+class CourseRatingAdmin(admin.ModelAdmin):
+    list_display = [
+        "course",
+        "user",
+        "rating",
+        "review",
     ]
