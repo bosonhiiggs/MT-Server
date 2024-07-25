@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -8,9 +10,27 @@ class ProfileInfoSerializer(serializers.ModelSerializer):
     """
     Сериализатор модели для просмотра информации о пользователе.
     """
+    avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomAccount
         fields = ['username', 'first_name', 'last_name', 'email', 'avatar', 'is_activated', 'is_moderator']
+
+    def get_avatar(self, obj):
+        request = self.context.get('request')
+        url = obj.avatar.url
+        if request:
+            host: str = request.get_host()
+            port: str = request.get_port()
+            if settings.IS_DEV_SERVER:
+                if host.endswith(f':{port}'):
+                    host = host[:-len(f':{port}')]
+                return f'http://{host}:{port}{url}'
+            else:
+                return f'http://{host}:{port}{url}'
+
+        return url
+
 
 
 class ProfileLoginSerializer(serializers.ModelSerializer):

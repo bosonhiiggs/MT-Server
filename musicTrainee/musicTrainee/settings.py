@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import logging.config
 import os
+import sys
 from os import getenv
 from pathlib import Path
 
@@ -220,3 +221,5 @@ logging.config.dictConfig({
         }
     }
 })
+
+IS_DEV_SERVER = 'runserver' in sys.argv
