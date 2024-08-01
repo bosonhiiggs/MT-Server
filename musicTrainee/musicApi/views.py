@@ -845,6 +845,41 @@ class LessonCreatedView(RetrieveAPIView):
         response = [module.title, serializer.data]
         return Response(response)
 
+    @extend_schema(
+        summary='Patch new module',
+        request=ModuleCreateSerializer,
+        examples=[
+            OpenApiExample(
+                name='Patch new module',
+                value={
+                    "title": "module_title",
+                }
+
+            )
+        ]
+    )
+    def patch(self, request, *args, **kwargs):
+        module = self.get_module()
+        serializer = ModuleCreateSerializer(instance=module, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        summary='Delete module',
+        examples=[
+            OpenApiExample(
+                name='Delete module',
+                value=None
+            )
+        ]
+    )
+    def delete(self, request, *args, **kwargs):
+        module = self.get_module()
+        module.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 # Представление для создания уроков состоящий из модулей
 @extend_schema(
