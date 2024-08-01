@@ -304,7 +304,9 @@ class PasswordResetConfirmView(APIView):
             user = CustomAccount.objects.get(email=reset_request.email)
             user.password = new_password
             user.save()
-            reset_request.delete()
+            if 'sessionid' in request.COOKIES:
+                logout(request)
+
             return Response({'message': f'Password reset successful.'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
