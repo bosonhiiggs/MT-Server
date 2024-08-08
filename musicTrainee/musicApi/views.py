@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -714,6 +716,7 @@ class PaidCourseCreateView(CreateAPIView):
         title = serializer.validated_data['title']
         slug = slugify(title)
         serializer.save(creator=self.request.user, slug=slug)
+        return Response(Course.objects.filter(slug=slug).first())
 
 
 # Представление для создания бесплатного курса
@@ -740,6 +743,7 @@ class FreeCourseCreateView(CreateAPIView):
         title = serializer.validated_data['title']
         slug = slugify(title)
         serializer.save(creator=self.request.user, slug=slug)
+        return Response(Course.objects.filter(slug=slug).first())
 
 
 # Представление для получения и создания новых модулей
@@ -759,7 +763,7 @@ class FreeCourseCreateView(CreateAPIView):
 )
 class ModuleCreateView(ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = ModuleCreateSerializer
+    serializer_class = ModuleSerializer
 
     def get_course(self):
         slug = self.kwargs.get('slug')
@@ -789,7 +793,7 @@ class ModuleCreateView(ListAPIView):
     )
     def post(self, request, *args, **kwargs):
         course = self.get_course()
-        serializer = self.get_serializer(data=request.data)
+        serializer = ModuleCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(course=course)
             return Response(serializer.data)
@@ -847,6 +851,64 @@ class LessonCreatedView(RetrieveAPIView):
         response = [module.title, serializer.data]
         return Response(response)
 
+    @extend_schema(
+        summary='Patch new module',
+        request=ModuleCreateSerializer,
+        examples=[
+            OpenApiExample(
+                name='Patch new module',
+                value={
+                    "title": "module_title",
+                }
+
+            )
+        ]
+    )
+    def patch(self, request, *args, **kwargs):
+        module = self.get_module()
+        serializer = ModuleCreateSerializer(instance=module, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        summary='Delete module',
+        examples=[
+            OpenApiExample(
+                name='Delete module',
+                value=None
+            )
+        ]
+    )
+    def delete(self, request, *args, **kwargs):
+        module = self.get_module()
+        module.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(
+        summary='Create new lesson',
+        request=LessonCreateSerializer,
+        examples=[
+            OpenApiExample(
+                name='Create new lesson',
+                value={
+                    "title": "lesson_title"
+                }
+            )
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        module = self.get_module()
+
+        lesson_data = request.data
+        lesson_serializer = LessonCreateSerializer(data=lesson_data, context={'module': module})
+        if lesson_serializer.is_valid():
+            lesson_serializer.save()
+            return Response(lesson_serializer.data)
+        else:
+            return Response(lesson_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # Представление для создания уроков состоящий из модулей
 @extend_schema(
@@ -854,13 +916,10 @@ class LessonCreatedView(RetrieveAPIView):
     request=inline_serializer(
         name='LessonContentCreateRequest',
         fields={
-            'lesson': LessonCreateSerializer(),
             'contents': serializers.ListField(
                 child=inline_serializer(
                     name='ContentItem',
                     fields={
-                        'content_type': serializers.ChoiceField(
-                            choices=['text', 'file', 'image', 'video', 'question', 'task']),
                         'text': TextSerializer(required=False),
                         'file': FileSerializer(required=False),
                         'image': ImageSerializer(required=False),
@@ -876,8 +935,7 @@ class LessonCreatedView(RetrieveAPIView):
         201: inline_serializer(
             name='LessonContentCreateResponse',
             fields={
-                'lesson': LessonCreateSerializer(),
-                'content': ContentSerializer(many=True),
+                'contents': ContentSerializer(many=True),
             }
         ),
         400: inline_serializer(
@@ -888,7 +946,7 @@ class LessonCreatedView(RetrieveAPIView):
         ),
     },
 )
-class LessonContentCreateView(CreateAPIView):
+class LessonContentCreateView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_module(self):
@@ -898,54 +956,109 @@ class LessonContentCreateView(CreateAPIView):
         module = get_object_or_404(Module, id=module_id, course=course)
         return module
 
-    def create(self, request, *args, **kwargs):
+    @extend_schema(
+        summary='Get lesson content',
+    )
+    def get_lesson(self):
         module = self.get_module()
+        lesson_id = self.kwargs.get('lesson_id')
+        lesson = get_object_or_404(Lesson, id=lesson_id, module=module)
+        return lesson
 
-        lesson_data = request.data.get('lesson')
-        lesson_serializer = LessonCreateSerializer(data=lesson_data, context={'module': module})
-        if lesson_serializer.is_valid():
-            lesson = lesson_serializer.save()
-        else:
-            return Response(lesson_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def retrieve(self, request, *args, **kwargs):
+        lesson = self.get_lesson()
+        lesson_serializer = LessonSerializer(lesson)
+        return Response(lesson_serializer.data)
 
-        contents_data = request.data.get('contents', [])
+    def post(self, request, *args, **kwargs):
+        lesson = self.get_lesson()
+        content_data = request.data.get('contents')
         created_contents = []
+        for content_data in content_data:
+            for key, value in content_data.items():
+                content_type = key
 
-        for content_data in contents_data:
-            content_type = content_data.get('content_type')
+                if content_type == 'text':
+                    content_serializer = TextSerializer(data=value)
+                elif content_type == 'file':
+                    content_serializer = FileSerializer(data=value)
+                elif content_type == 'image':
+                    content_serializer = ImageSerializer(data=value)
+                elif content_type == 'video':
+                    content_serializer = VideoSerializer(data=value)
+                elif content_type == 'question':
+                    content_serializer = QuestionSerializer(data=value)
+                elif content_type == 'task':
+                    content_serializer = TaskSerializer(data=value)
+                else:
+                    raise ValidationError({'error': 'Invalid content type'})
 
-            if content_type == 'text':
-                content_serializer = TextSerializer(data=content_data.get('text'))
-            elif content_type == 'file':
-                content_serializer = FileSerializer(data=content_data.get('file'))
-            elif content_type == 'image':
-                content_serializer = ImageSerializer(data=content_data.get('image'))
-            elif content_type == 'video':
-                content_serializer = VideoSerializer(data=content_data.get('video'))
-            elif content_type == 'question':
-                content_serializer = QuestionSerializer(data=content_data.get('question'))
-            elif content_type == 'task':
-                content_serializer = TaskSerializer(data=content_data.get('task'))
-            else:
-                raise ValidationError({'error': 'Invalid content type'})
+                if content_serializer.is_valid():
+                    item = content_serializer.save()
+                    content_type_instance = ContentType.objects.get(model=content_type)
+                    created_content = Content.objects.create(
+                        lesson=lesson,
+                        content_type=content_type_instance,
+                        object_id=item.id
+                    )
+                    created_contents.append(created_content)
+                    print(created_contents)
+                else:
+                    return Response(content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            if content_serializer.is_valid():
-                item = content_serializer.save()
-                content_type_instance = ContentType.objects.get(model=content_type)
-                created_content = Content.objects.create(
-                    lesson=lesson,
-                    content_type=content_type_instance,
-                    object_id=item.id
-                )
-                created_contents.append(created_content)
-            else:
-                return Response(content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        # print(created_contents)
         response_data = {
-            'lesson': LessonCreateSerializer(lesson).data,
-            'content': ContentSerializer(created_contents, many=True).data,
+            # 'lesson': LessonCreateSerializer(lesson).data,
+            'contents': ContentSerializer(created_contents, many=True).data,
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
+
+    def put(self, request, *args, **kwargs):
+        lesson = self.get_lesson()
+        content_data = request.data.get('contents')
+
+        updated_contents = []
+        for content_data in content_data:
+            for key, value in content_data.items():
+                content_type = key
+                content_type_instance = ContentType.objects.get(model=content_type)
+                content = Content.objects.filter(lesson=lesson, content_type=content_type_instance).first()
+
+                if content is None:
+                    raise ValidationError({'error': f'Content of type {content_type} not found in lesson'})
+
+                if content_type == 'text':
+                    content_serializer = TextSerializer(content.item, data=value)
+                elif content_type == 'file':
+                    content_serializer = FileSerializer(content.item, data=value)
+                elif content_type == 'image':
+                    content_serializer = ImageSerializer(content.item, data=value)
+                elif content_type == 'video':
+                    content_serializer = VideoSerializer(content.item, data=value)
+                elif content_type == 'question':
+                    content_serializer = QuestionSerializer(content.item, data=value)
+                elif content_type == 'task':
+                    content_serializer = TaskSerializer(content.item, data=value)
+                else:
+                    raise ValidationError({'error': 'Invalid content type'})
+
+                if content_serializer.is_valid():
+                    item = content_serializer.save()
+                    content.object_id = item.id
+                    content.save()
+                    updated_contents.append(content)
+                else:
+                    return Response(content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        response_data = {
+            'contents': ContentSerializer(updated_contents, many=True).data,
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        lesson = self.get_lesson()
+        lesson.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # Представление для получения списка домашнего задания на проверку

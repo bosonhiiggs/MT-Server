@@ -92,3 +92,5 @@ db.sqlite3
 /venv/
 /.env
 
+/musicTrainee/web/media/users/
+/musicTrainee/web/media/courses/
