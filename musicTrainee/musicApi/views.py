@@ -708,15 +708,19 @@ class MyCreationCoursesView(ListAPIView):
     ]
 )
 class PaidCourseCreateView(CreateAPIView):
-    queryset = Course
+    queryset = Course.objects.all()
     serializer_class = PaidCourseCreateSerializer
     permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         title = serializer.validated_data['title']
         slug = slugify(title)
-        serializer.save(creator=self.request.user, slug=slug)
-        return Response(Course.objects.filter(slug=slug).first())
+        course = serializer.save(creator=self.request.user, slug=slug)
+        course_detail_serializer = CourseDetailSerializer(course)
+        headers = self.get_success_headers(serializer.data)
+        return Response(course_detail_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 # Представление для создания бесплатного курса
@@ -735,15 +739,19 @@ class PaidCourseCreateView(CreateAPIView):
     ]
 )
 class FreeCourseCreateView(CreateAPIView):
-    queryset = Course
+    queryset = Course.objects.all()
     serializer_class = FreeCourseCreateSerializer
     permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         title = serializer.validated_data['title']
         slug = slugify(title)
-        serializer.save(creator=self.request.user, slug=slug)
-        return Response(Course.objects.filter(slug=slug).first())
+        course = serializer.save(creator=self.request.user, slug=slug)
+        course_detail_serializer = CourseDetailSerializer(course)
+        headers = self.get_success_headers(serializer.data)
+        return Response(course_detail_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 # Представление для получения и создания новых модулей
