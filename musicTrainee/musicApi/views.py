@@ -805,8 +805,6 @@ class ModuleCreateView(ListAPIView):
         if serializer.is_valid():
             module = serializer.save(course=course)
             module_data = ModuleSerializer(module)
-            # headers = self.get_success_headers(serializer.data)
-            # if module_data.is_valid():
             return Response(module_data.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
