@@ -307,6 +307,12 @@ class LessonSerializer(serializers.ModelSerializer):
         return contents_data
 
 
+class PostLessonCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = ['id', 'title']
+
+
 class LessonCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson

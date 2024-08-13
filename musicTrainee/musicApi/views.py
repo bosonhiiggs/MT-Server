@@ -29,7 +29,7 @@ from catalog.serializers import CourseDetailSerializer, ModuleSerializer, Conten
     FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer, TaskSerializer, \
     TaskSubmissionSerializer, PaidCourseCreateSerializer, FreeCourseCreateSerializer, ModuleCreateSerializer, \
     LessonSerializer, LessonCreateSerializer, ContentCreateSerializer, TaskReviewSerializer, CommentContentSerializer, \
-    CourseRatingSerializer
+    CourseRatingSerializer, PostLessonCreateSerializer
 
 from slugify import slugify
 
@@ -817,7 +817,10 @@ class ModuleCreateView(ListAPIView):
         OpenApiExample(
             name='Get lessons from module',
             value=[
-                "module_title",
+                {
+                    "module_id": "module_id",
+                    "module_title": "module_title"
+                },
                 [
                     {
                         "title": "lesson_title",
@@ -857,7 +860,11 @@ class LessonCreatedView(RetrieveAPIView):
         module = self.get_module()
         lessons = self.get_queryset()
         serializer = self.get_serializer(lessons, many=True)
-        response = [module.title, serializer.data]
+        module_data = {
+            "module_id": module.id,
+            "module_title": module.title,
+        }
+        response = [module_data, serializer.data]
         return Response(response)
 
     @extend_schema(
@@ -913,8 +920,9 @@ class LessonCreatedView(RetrieveAPIView):
         lesson_data = request.data
         lesson_serializer = LessonCreateSerializer(data=lesson_data, context={'module': module})
         if lesson_serializer.is_valid():
-            lesson_serializer.save()
-            return Response(lesson_serializer.data)
+            lesson = lesson_serializer.save()
+            response = PostLessonCreateSerializer(lesson)
+            return Response(response.data, status=status.HTTP_201_CREATED)
         else:
             return Response(lesson_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
