@@ -817,7 +817,10 @@ class ModuleCreateView(ListAPIView):
         OpenApiExample(
             name='Get lessons from module',
             value=[
-                "module_title",
+                {
+                    "module_id": "module_id",
+                    "module_title": "module_title"
+                },
                 [
                     {
                         "title": "lesson_title",
@@ -857,7 +860,11 @@ class LessonCreatedView(RetrieveAPIView):
         module = self.get_module()
         lessons = self.get_queryset()
         serializer = self.get_serializer(lessons, many=True)
-        response = [module.title, serializer.data]
+        module_data = {
+            "module_id": module.id,
+            "module_title": module.title,
+        }
+        response = [module_data, serializer.data]
         return Response(response)
 
     @extend_schema(
