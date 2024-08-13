@@ -12,10 +12,23 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import logging.config
 import os
 import sys
+import sentry_sdk
 from os import getenv
 from pathlib import Path
 
 from dotenv import load_dotenv
+
+
+sentry_sdk.init(
+    dsn="https://d250dbafc32afa0769139c6d081e4e63@o4505427216564224.ingest.us.sentry.io/4507769266700288",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 
 
 current_path = os.path.join('/'.join(os.path.abspath(__file__).split('/')[:-3]), '.env')
