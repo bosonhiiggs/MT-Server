@@ -1,4 +1,4 @@
-version: "3.9"
+#version: "3"
 
 services:
   app:
@@ -15,10 +15,15 @@ services:
     env_file:
       - .env
     logging:
-      driver: "json-file"
-      options:
-        max-file: "10"
-        max-size: "200k"
+#      driver: "json-file"
+#      options:
+#        max-file: "10"
+#        max-size: "200k"
+        driver: loki
+        options:
+          loki-url: http://localhost:3100/loki/api/v1/push
+#          Не работает, контейнер виснет при попытке остановки, потому что внутри контейнера нет соединения
+#          loki-url: http://host.docker.internal:3100/loki/api/v1/push
     volumes:
       - ./musicTrainee/database:/app/database
       - ./musicTrainee/web/static:/app/web/static
@@ -34,3 +39,22 @@ services:
       - "8001:80"
     depends_on:
       - app
+
+    logging:
+      driver: loki
+      options:
+        loki-url: http://localhost:3100/loki/api/v1/push
+
+  grafana:
+    image: grafana/grafana:9.5.2
+    environment:
+      - GR_AUTH_ANONYMOUS_ENABLE=true
+      - GR_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    ports:
+      - "3000:3000"
+
+  loki:
+    image: grafana/loki:3.1.1
+    ports:
+      - "3100:3100"
+
