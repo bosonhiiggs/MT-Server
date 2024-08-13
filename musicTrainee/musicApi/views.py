@@ -29,7 +29,7 @@ from catalog.serializers import CourseDetailSerializer, ModuleSerializer, Conten
     FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer, TaskSerializer, \
     TaskSubmissionSerializer, PaidCourseCreateSerializer, FreeCourseCreateSerializer, ModuleCreateSerializer, \
     LessonSerializer, LessonCreateSerializer, ContentCreateSerializer, TaskReviewSerializer, CommentContentSerializer, \
-    CourseRatingSerializer
+    CourseRatingSerializer, PostLessonCreateSerializer
 
 from slugify import slugify
 
@@ -913,8 +913,9 @@ class LessonCreatedView(RetrieveAPIView):
         lesson_data = request.data
         lesson_serializer = LessonCreateSerializer(data=lesson_data, context={'module': module})
         if lesson_serializer.is_valid():
-            lesson_serializer.save()
-            return Response(lesson_serializer.data)
+            lesson = lesson_serializer.save()
+            response = PostLessonCreateSerializer(lesson)
+            return Response(response.data, status=status.HTTP_201_CREATED)
         else:
             return Response(lesson_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
