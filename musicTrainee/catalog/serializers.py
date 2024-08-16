@@ -78,7 +78,8 @@ class PaidCourseCreateSerializer(serializers.ModelSerializer):
             'title',
             'target_description',
             'description',
-            'price'
+            'price',
+            'logo',
         ]
         extra_kwargs = {
             'logo': {'required': False},
@@ -92,6 +93,7 @@ class FreeCourseCreateSerializer(serializers.ModelSerializer):
             'title',
             'target_description',
             'description',
+            'logo',
         ]
         extra_kwargs = {
             'logo': {'required': False},
