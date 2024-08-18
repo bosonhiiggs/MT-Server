@@ -38,6 +38,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     creator_username = serializers.SerializerMethodField()
     created_at_formatted = serializers.SerializerMethodField()
+    logo = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -69,6 +70,24 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.IntegerField())
     def get_average_rating(self, obj):
         return obj.average_rating()
+
+    def get_logo(self, obj):
+        request = self.context.get('request')
+        try:
+            url = obj.logo.url
+            if request:
+                host: str = request.get_host()
+                port: str = request.get_port()
+                if settings.IS_DEV_SERVER:
+                    if host.endswith(f':{port}'):
+                        host = host[:-len(f':{port}')]
+                    return f'http://{host}:{port}{url}'
+                else:
+                    return f'http://{host}:{port}{url}'
+
+            return url
+        except ValueError:
+            return None
 
 
 class PaidCourseCreateSerializer(serializers.ModelSerializer):
