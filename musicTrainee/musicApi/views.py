@@ -717,7 +717,9 @@ class PaidCourseCreateView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         title = serializer.validated_data['title']
         slug = slugify(title)
-        course = serializer.save(creator=self.request.user, slug=slug)
+        user = self.request.user
+        course = serializer.save(creator=user, slug=slug)
+        course.owner.set([user])
         course_detail_serializer = CourseDetailSerializer(course)
         headers = self.get_success_headers(serializer.data)
         return Response(course_detail_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -748,7 +750,9 @@ class FreeCourseCreateView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         title = serializer.validated_data['title']
         slug = slugify(title)
-        course = serializer.save(creator=self.request.user, slug=slug)
+        user = self.request.user
+        course = serializer.save(creator=user, slug=slug)
+        course.owner.set([user])
         course_detail_serializer = CourseDetailSerializer(course)
         headers = self.get_success_headers(serializer.data)
         return Response(course_detail_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
