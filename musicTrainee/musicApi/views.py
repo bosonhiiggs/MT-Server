@@ -660,6 +660,28 @@ class CatalogCourseDetailView(RetrieveAPIView):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
+    @extend_schema(
+        summary='Catalog detail course',
+        request=CourseDetailSerializer,
+        examples=[
+            OpenApiExample(
+                name='My Course Detail',
+                value=None
+            )
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        course = self.get_queryset()
+        user = request.user
+
+        if user in course.owner.all():
+            return Response({'detail': 'Вы уже владеете этим курсом'})
+
+        course.owner.add(user)
+        course.save()
+
+        return Response({'detail': 'Курс успешно приобретен'}, status=status.HTTP_200_OK)
+
 
 # Представление для просмотра курсов, созданных пользователем
 @extend_schema(
