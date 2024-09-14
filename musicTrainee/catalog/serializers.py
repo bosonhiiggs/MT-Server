@@ -173,7 +173,15 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = ['question', 'text', 'is_true']
-        read_only_fields = ['is_true']
+
+
+class QuestionDisplaySerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для создания Question
+    """
+    class Meta:
+        model = Question
+        fields = ['title', 'text']
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -184,7 +192,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['title', 'text', 'answers']
+        fields = ['id', 'title', 'text', 'answers']
 
     def get_answers(self, question):
         # Получаем ответы к вопросу
@@ -308,6 +316,7 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = ['id', 'title', 'contents']
+        # fields = ['id', 'title']
 
     def get_contents(self, obj) -> list:
         contents_data = []

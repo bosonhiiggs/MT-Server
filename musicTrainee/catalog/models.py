@@ -4,6 +4,8 @@ from django.db import models
 from django.db.models import Manager
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 from .fields import OrderField
 from django.conf import settings
@@ -182,6 +184,11 @@ class File(ItemBase):
     """
     file = models.FileField(upload_to=course_files_directory_path)
 
+    def delete(self, *args, **kwargs):
+        storage, path = self.file.storage, self.file.path
+        super(File, self).delete(*args, **kwargs)
+        storage.delete(path)
+
 
 class Image(ItemBase):
     """
@@ -287,3 +294,9 @@ class CommentContent(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     text = models.TextField()
     # attach_file = models.FileField(upload_to=comments_content_directory_path)
+
+
+@receiver(post_delete, sender=File)
+def auto_delete_file(sender, instance, **kwargs):
+    if instance.file:
+        instance.file.delete(False)
