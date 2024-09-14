@@ -5,10 +5,10 @@
 import secrets
 import string
 
+from django.conf import settings
 from django.core.mail import send_mail
 
-from musicTrainee import settings
-
+# from musicTrainee import settings
 
 def generate_reset_code(length=6):
     """
@@ -54,8 +54,7 @@ def send_confirm_code_email(email, confirm_code):
     message = (f'Здравствуйте!\n'
                f'Ваш код для подтверждения учетной пароля: {confirm_code}'
                )
-    # from_email = settings.EMAIL_HOST_USER
-    from_email = 'pyaninyury@yandex.ru'
+    from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail(
         subject=subject,
