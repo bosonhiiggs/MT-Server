@@ -172,7 +172,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ['question', 'text', 'is_true']
+        fields = ['id', 'question', 'text', 'is_true']
 
 
 class QuestionDisplaySerializer(serializers.ModelSerializer):
@@ -332,9 +332,13 @@ class LessonSerializer(serializers.ModelSerializer):
                 content_data['video_content'] = VideoSerializer(content.item).data['title']
             elif isinstance(content.item, Question):
                 content_data['question_content'] = QuestionSerializer(content.item).data['title']
+            elif isinstance(content.item, Answer):
+                content_data.clear()
+            #     content_data['answer_content'] = AnswerSerializer(content.item).data['text']
             elif isinstance(content.item, Task):
                 content_data['task_content'] = TaskSerializer(content.item).data['title']
-            contents_data.append(content_data)
+            if content_data:
+                contents_data.append(content_data)
         return contents_data
 
 
