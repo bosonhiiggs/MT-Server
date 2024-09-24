@@ -116,6 +116,15 @@ class QuestionAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(Answer)
+class AnswerAdmin(admin.ModelAdmin):
+    list_display = [
+        'question',
+        'text',
+        'is_true'
+    ]
+
+
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = [

@@ -208,7 +208,7 @@ class Question(ItemBase):
     """
     Модель текста вопроса теста.
     """
-    text = models.TextField(max_length=3000, verbose_name="text_question")
+    text = models.TextField(max_length=3000, verbose_name="text_question", blank=True, null=True)
 
     # def __str__(self):
     #     return self.text
