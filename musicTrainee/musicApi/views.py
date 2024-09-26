@@ -810,7 +810,7 @@ class FreeCourseCreateView(CreateAPIView):
         title = serializer.validated_data['title']
         slug = slugify(title)
         user = self.request.user
-        course = serializer.save(creator=user, slug=slug)
+        course = serializer.save(creator=user, owner=user, slug=slug)
         course.owner.set([user])
         course_detail_serializer = CourseDetailSerializer(course)
         headers = self.get_success_headers(serializer.data)

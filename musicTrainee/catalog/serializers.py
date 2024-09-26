@@ -99,6 +99,7 @@ class PaidCourseCreateSerializer(serializers.ModelSerializer):
             'target_description',
             'description',
             'price',
+            'owner',
             'logo',
         ]
         extra_kwargs = {
@@ -113,6 +114,7 @@ class FreeCourseCreateSerializer(serializers.ModelSerializer):
             'title',
             'target_description',
             'description',
+            'owner',
             'logo',
         ]
         extra_kwargs = {
@@ -169,10 +171,14 @@ class AnswerSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Answer
     """
+    # content_id = serializers.SerializerMethodField();
 
     class Meta:
         model = Answer
         fields = ['id', 'question', 'text', 'is_true']
+
+    # def get_content_id(self):
+
 
 
 class QuestionDisplaySerializer(serializers.ModelSerializer):
