@@ -19,12 +19,14 @@ from .views import (
     ModerationModulesView, ConfirmUserView, CommentCreateView, MyCourseReView, LessonContentFileCreateView,
     LessonContentTextCreateView, LessonContentImageCreateView, LessonContentQuestionCreateView,
     LessonContentAnswerCreateView, LessonContentTaskCreateView, MyLessonView, MyCreateContentView,
-    LessonContentAnswerEditView,
+    LessonContentAnswerEditView, UserInfoView,
 )
 
 app_name = 'musicApi'
 
 urlpatterns = [
+    path('user/<int:user_id>/', UserInfoView.as_view(), name='user'),
+
     # path('hello/', hello_world_view, name='hello_world'),
     path('auth/aboutme/', AboutMeView.as_view(), name='about-me'),
     path('auth/signup/', CreateUserView.as_view(), name='sing-up'),

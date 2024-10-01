@@ -35,6 +35,17 @@ from catalog.serializers import CourseDetailSerializer, ModuleSerializer, Conten
 from slugify import slugify
 
 
+# Представление для получения ин-фы пользователя
+class UserInfoView(RetrieveAPIView):
+    serializer_class = ProfileInfoSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        user_id = kwargs.get('user_id')
+        user = get_object_or_404(CustomAccount, id=user_id)
+        serializer = self.get_serializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 # Представление для создания нового пользователя
 @extend_schema(
     summary='Create a new user',
