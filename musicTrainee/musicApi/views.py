@@ -1510,7 +1510,7 @@ class ModerationModulesView(ListAPIView):
     )
     def patch(self, request, *args, **kwargs):
         course = self.get_course()
-        action = self.kwargs.get('action')
+        action = request.data['action']
 
         if action not in ['approve', 'disapprove']:
             return Response({'detail': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
