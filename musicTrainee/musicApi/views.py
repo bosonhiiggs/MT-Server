@@ -1313,6 +1313,18 @@ class LessonContentTaskCreateView(CreateAPIView):
             object_id=item.id
         )
 
+    def patch(self, request, *args, **kwargs):
+        lesson_id = self.kwargs.get('lesson_id')
+        lesson = get_object_or_404(Lesson, id=lesson_id)
+        content_type = ContentType.objects.get_for_model(Task)
+        content = get_object_or_404(Content, lesson=lesson, content_type=content_type)
+        text_item = get_object_or_404(Task, id=content.object_id)
+        serializer = self.get_serializer(text_item, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # Представление для получения списка домашнего задания на проверку
 @extend_schema(
