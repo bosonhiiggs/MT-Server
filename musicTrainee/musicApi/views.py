@@ -1521,3 +1521,50 @@ class ModerationModulesView(ListAPIView):
             course.approval = False
         course.save()
         return Response({'detail': 'Moderate course successfully'}, status=status.HTTP_200_OK)
+
+
+class ModerationApproveChange(UpdateAPIView):
+    # permission_classes = [IsAuthenticated]
+    serializer_class = CourseDetailSerializer
+
+    def get_object(self):
+        slug = self.kwargs.get('slug')
+        return get_object_or_404(Course, slug=slug)
+
+    @extend_schema(
+        summary='Approve or disapprove course',
+        request=CourseDetailSerializer,
+        responses={
+            200: OpenApiExample(
+                name='Success',
+                value={'detail': 'Moderate course successfully'}
+            ),
+            400: OpenApiExample(
+                name='Bad request',
+                value={'detail': 'Invalid input.'}
+            )
+        },
+        examples=[
+            OpenApiExample(
+                name='Approve',
+                value={'action': 'approve'}
+            ),
+            OpenApiExample(
+                name='Disapprove',
+                value={'action': 'disapprove'}
+            )
+        ]
+    )
+    def patch(self, request, *args, **kwargs):
+        course = self.get_object()
+        action = request.data['action']
+
+        if action not in ['approve', 'disapprove']:
+            return Response({'detail': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if action == 'approve':
+            course.approval = True
+        elif action == 'disapprove':
+            course.approval = False
+        course.save()
+        return Response({'detail': 'Moderate course successfully'}, status=status.HTTP_200_OK)
