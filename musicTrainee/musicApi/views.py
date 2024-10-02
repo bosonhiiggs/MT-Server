@@ -1410,7 +1410,7 @@ class TaskSubmissionView(RetrieveUpdateDestroyAPIView):
         if not task_submission:
             return NotFound("Submission not found.")
 
-        request.data['task_submission'] = task_id
+        request.data['task_submission'] = sub_id
         serializer = TaskReviewSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(task_submission=task_submission)
