@@ -19,7 +19,8 @@ from .views import (
     ModerationModulesView, ConfirmUserView, CommentCreateView, MyCourseReView, LessonContentFileCreateView,
     LessonContentTextCreateView, LessonContentImageCreateView, LessonContentQuestionCreateView,
     LessonContentAnswerCreateView, LessonContentTaskCreateView, MyLessonView, MyCreateContentView,
-    LessonContentAnswerEditView, UserInfoView, ModerationApproveChange,
+    LessonContentAnswerEditView, UserInfoView, ModerationApproveChange, TaskView, TaskSubmissionsView,
+    TaskSubmissionView,
 )
 
 app_name = 'musicApi'
@@ -63,8 +64,11 @@ urlpatterns = [
     path('mycreations/create/<str:slug>/modules/<int:module_id>/<int:lesson_id>/answer/', LessonContentAnswerCreateView.as_view(), name='course-create-answer-content'),
     path('mycreations/create/<str:slug>/modules/<int:module_id>/<int:lesson_id>/answer/<int:answer_id>', LessonContentAnswerEditView.as_view(), name='course-edit-answer-content'),
     path('mycreations/create/<str:slug>/modules/<int:module_id>/<int:lesson_id>/task/', LessonContentTaskCreateView.as_view(), name='course-create-task-content'),
-    path('mycreations/submissions/', TaskSubmissionsForReviewView.as_view(), name='my-creations-submissions'),
-    path('mycreations/submissions/<int:task_id>', TaskSubmissionReviewView.as_view(), name='my-creations-submissions-review'),
+    path('mycreations/tasks/', TaskView.as_view(), name='my-creations-tasks'),
+    path('mycreations/tasks/<int:task_id>/', TaskSubmissionsView.as_view(), name='my-creations-submissions-tasks'),
+    path('mycreations/tasks/<int:task_id>/<int:sub_id>/', TaskSubmissionView.as_view(), name='my-creations-submission-tasks'),
+    # path('mycreations/submissions/', TaskSubmissionsForReviewView.as_view(), name='my-creations-submissions'),
+    # path('mycreations/submissions/<int:task_id>', TaskSubmissionReviewView.as_view(), name='my-creations-submissions-review'),
     path('mycreations/<str:slug>/approve/', ModerationApproveChange.as_view(), name='moderation-modules'),
 
     path('moderation/', ModerationCoursesView.as_view(), name='moderation-courses'),

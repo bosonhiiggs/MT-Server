@@ -214,7 +214,26 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['title', 'description', ]
+        fields = ['id', 'title', 'description', ]
+
+
+class TaskCourseSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели Task
+    """
+
+    course_title = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'description', 'course_title']
+
+    def get_course_title(self, obj):
+        # Получаем курс через Content
+        content = Content.objects.filter(object_id=obj.id, content_type__model='task').first()
+        if content:
+            return content.lesson.module.course.title  # Доступ к курсу через урок и модуль
+        return None
 
 
 class TaskSubmissionSerializer(serializers.ModelSerializer):
@@ -224,14 +243,14 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TaskSubmission
-        fields = ['task', 'student', 'file', 'submitted_at']
-        read_only_fields = ['task', 'student', 'submitted_at']
+        fields = ['id', 'task', 'student', 'file', 'submitted_at']
+        read_only_fields = ['id', 'task', 'student', 'submitted_at']
 
 
 class TaskReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskReview
-        fields = ['is_correct', 'comment']
+        fields = ['task_submission', 'is_correct', 'comment']
         extra_kwargs = {
             'comment': {'required': False},
         }

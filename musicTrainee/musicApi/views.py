@@ -4,7 +4,7 @@ from django.contrib.auth import logout, authenticate, login
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Q
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, \
     inline_serializer, OpenApiResponse
@@ -12,8 +12,9 @@ from rest_framework import generics, status, serializers
 
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import NotFound
 from rest_framework.generics import RetrieveAPIView, CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView, \
-    get_object_or_404, ListAPIView, GenericAPIView, ListCreateAPIView
+    get_object_or_404, ListAPIView, GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -30,7 +31,7 @@ from catalog.serializers import CourseDetailSerializer, ModuleSerializer, Conten
     FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer, TaskSerializer, \
     TaskSubmissionSerializer, PaidCourseCreateSerializer, FreeCourseCreateSerializer, ModuleCreateSerializer, \
     LessonSerializer, LessonCreateSerializer, ContentCreateSerializer, TaskReviewSerializer, CommentContentSerializer, \
-    CourseRatingSerializer, PostLessonCreateSerializer, QuestionDisplaySerializer
+    CourseRatingSerializer, PostLessonCreateSerializer, QuestionDisplaySerializer, TaskCourseSerializer
 
 from slugify import slugify
 
@@ -1336,6 +1337,62 @@ class LessonContentTaskCreateView(CreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TaskView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TaskCourseSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        # Получаем все Content, которые принадлежат курсам, созданным авторизованным пользователем
+        content_queryset = Content.objects.filter(
+            lesson__module__course__creator=user,
+            content_type__model='task'
+        )
+        # Получаем уникальные задания из Content
+        return Task.objects.filter(id__in=content_queryset.values_list('object_id', flat=True))
+
+
+class TaskSubmissionsView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TaskSubmissionSerializer
+
+    def get_queryset(self):
+        task_id = self.kwargs['task_id']  # Получаем task_id из URL
+        # return TaskSubmission.objects.filter(task=task_id)
+        return TaskSubmission.objects.filter(task=task_id, review__is_correct__isnull=True)
+
+
+class TaskSubmissionView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TaskSubmissionSerializer
+    lookup_field = 'id'  # Используем 'id' как lookup_field
+
+    def get_object(self):
+        sub_id = self.kwargs['sub_id']
+        task_id = self.kwargs['task_id']
+        submission = TaskSubmission.objects.filter(id=sub_id, task_id=task_id).first()
+
+        if not submission:
+            raise NotFound("Submission not found for the given task.")
+
+        return submission
+
+    def post(self, request, *args, **kwargs):
+        sub_id = kwargs['sub_id']
+        task_id = kwargs['task_id']
+        task_submission = TaskSubmission.objects.filter(id=sub_id).first()
+
+        if not task_submission:
+            return NotFound("Submission not found.")
+
+        request.data['task_submission'] = task_id
+        serializer = TaskReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(task_submission=task_submission)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
 
 
 # Представление для получения списка домашнего задания на проверку
