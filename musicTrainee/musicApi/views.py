@@ -671,7 +671,8 @@ class CatalogCoursesView(ListAPIView):
     serializer_class = CourseDetailSerializer
 
     def get_queryset(self):
-        return Course.objects.all()
+        return Course.objects.filter(approval=True)
+    #     return Course.objects.all()
 
 
 # Представление для просмотра курса с каталога

@@ -23,6 +23,7 @@ class CourseAdmin(admin.ModelAdmin):
         'price',
         'created',
         'creator',
+        'approval',
     ]
     list_filter = [
         'title',
