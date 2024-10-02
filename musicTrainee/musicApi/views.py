@@ -636,6 +636,29 @@ class MyCourseContentView(RetrieveAPIView):
             return Response({'error': 'This content type dont support answering task'})
 
 
+class MyCourseContentSubmissionView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TaskSubmissionSerializer
+
+    def get_object(self):
+        content_id = self.kwargs.get('content_id')
+        user = self.request.user
+
+        try:
+            content = Content.objects.get(id=content_id)
+            task = Task.objects.get(id=content.object_id)  # Предполагается, что task связан с content
+            submission = TaskSubmission.objects.get(task=task, student=user)
+            # submission = TaskSubmission.objects.get(task__id=content_id, student=user)
+            return submission
+        except TaskSubmission.DoesNotExist:
+            raise NotFound("Submission not found.")
+
+    def get(self, request, *args, **kwargs):
+        submission = self.get_object()
+        serializer = self.get_serializer(submission)
+        return Response(serializer.data)
+
+
 class CommentCreateView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CommentContentSerializer

@@ -20,10 +20,11 @@ from .views import (
     LessonContentTextCreateView, LessonContentImageCreateView, LessonContentQuestionCreateView,
     LessonContentAnswerCreateView, LessonContentTaskCreateView, MyLessonView, MyCreateContentView,
     LessonContentAnswerEditView, UserInfoView, ModerationApproveChange, TaskView, TaskSubmissionsView,
-    TaskSubmissionView,
+    TaskSubmissionView, MyCourseContentSubmissionView,
 )
 
 app_name = 'musicApi'
+
 
 urlpatterns = [
     path('user/<int:user_id>/', UserInfoView.as_view(), name='user'),
@@ -45,6 +46,7 @@ urlpatterns = [
     path('mycourses/<str:slug>/modules/<int:module_id>/', MyLessonsView.as_view(), name='my-course-module'),
     path('mycourses/<str:slug>/modules/<int:module_id>/<int:lesson_id>/', MyLessonView.as_view(), name='my-course-lesson'),
     path('mycourses/<str:slug>/modules/<int:module_id>/<int:lesson_id>/<int:content_id>/', MyCourseContentView.as_view(), name='my-course-content'),
+    path('mycourses/<str:slug>/modules/<int:module_id>/<int:lesson_id>/<int:content_id>/submission', MyCourseContentSubmissionView.as_view(), name='my-course-content-submission'),
     path('mycourses/<str:slug>/modules/<int:module_id>/<int:lesson_id>/<int:content_id>/comments/', CommentCreateView.as_view(), name='comment-create'),
 
     path('catalog/', CatalogCoursesView.as_view(), name='catalog'),
