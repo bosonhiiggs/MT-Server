@@ -31,7 +31,8 @@ from catalog.serializers import CourseDetailSerializer, ModuleSerializer, Conten
     FileSerializer, ImageSerializer, VideoSerializer, QuestionSerializer, AnswerSerializer, TaskSerializer, \
     TaskSubmissionSerializer, PaidCourseCreateSerializer, FreeCourseCreateSerializer, ModuleCreateSerializer, \
     LessonSerializer, LessonCreateSerializer, ContentCreateSerializer, TaskReviewSerializer, CommentContentSerializer, \
-    CourseRatingSerializer, PostLessonCreateSerializer, QuestionDisplaySerializer, TaskCourseSerializer
+    CourseRatingSerializer, PostLessonCreateSerializer, QuestionDisplaySerializer, TaskCourseSerializer, \
+    TaskSubReviewSerializer
 
 from slugify import slugify
 
@@ -636,6 +637,33 @@ class MyCourseContentView(RetrieveAPIView):
             return Response({'error': 'This content type dont support answering task'})
 
 
+class MyCourseContentSubmissionReviewView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TaskSubReviewSerializer
+
+    def get_queryset(self):
+        content_id = self.kwargs.get('content_id')
+        user = self.request.user
+
+        try:
+            content = Content.objects.get(id=content_id)
+            task = Task.objects.get(id=content.object_id)
+            submission = TaskSubmission.objects.get(task=task, student=user)
+            return TaskReview.objects.filter(task_submission=submission)
+        except (Content.DoesNotExist, Task.DoesNotExist, TaskSubmission.DoesNotExist):
+            raise NotFound("Review not found for the given submission.")
+
+    def get(self, request, *args, **kwargs):
+        review_queryset = self.get_queryset()
+        review = review_queryset.first()  # Получаем первый объект, если он существует
+        if review is None:
+            raise NotFound("No reviews found for this submission.")
+
+        serializer = self.get_serializer(review)
+        return Response(serializer.data)
+
+
+
 class MyCourseContentSubmissionView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSubmissionSerializer
@@ -646,7 +674,7 @@ class MyCourseContentSubmissionView(RetrieveAPIView):
 
         try:
             content = Content.objects.get(id=content_id)
-            task = Task.objects.get(id=content.object_id)  # Предполагается, что task связан с content
+            task = Task.objects.get(id=content.object_id)
             submission = TaskSubmission.objects.get(task=task, student=user)
             # submission = TaskSubmission.objects.get(task__id=content_id, student=user)
             return submission

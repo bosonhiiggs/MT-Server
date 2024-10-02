@@ -256,6 +256,15 @@ class TaskReviewSerializer(serializers.ModelSerializer):
         }
 
 
+class TaskSubReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskReview
+        fields = ['id', 'task_submission', 'is_correct', 'comment']
+        extra_kwargs = {
+            'comment': {'required': False},
+        }
+
+
 class CommentContentSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели CommentContent
