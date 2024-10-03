@@ -874,8 +874,9 @@ class FreeCourseCreateView(CreateAPIView):
         title = serializer.validated_data['title']
         slug = slugify(title)
         user = self.request.user
-        course = serializer.save(creator=user, owner=user, slug=slug)
-        course.owner.set([user])
+        course = serializer.save(creator=user, slug=slug)
+        # course.owner.set([user])
+        course.owner.add(user)
         course_detail_serializer = CourseDetailSerializer(course)
         headers = self.get_success_headers(serializer.data)
         return Response(course_detail_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
