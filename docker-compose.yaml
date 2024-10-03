@@ -28,6 +28,8 @@ services:
       - ./musicTrainee/database:/app/database
       - ./musicTrainee/web/static:/app/web/static
       - ./musicTrainee/web/media:/app/web/media
+    depends_on:
+      - db
 
   nginx:
     container_name: NGINX
@@ -58,3 +60,16 @@ services:
     ports:
       - "3100:3100"
 
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
