@@ -265,6 +265,8 @@ class TaskSubReviewSerializer(serializers.ModelSerializer):
         }
 
 
+
+
 class CommentContentSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели CommentContent
@@ -274,6 +276,11 @@ class CommentContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommentContent
         fields = ['id', 'author', 'text']
+
+        read_only_fields = [
+            'id',
+            'author',
+        ]
 
     # @extend_schema_field(serializers.CharField())
     # def get_author(self, obj):
