@@ -269,17 +269,17 @@ class CommentContentSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели CommentContent
     """
-    author = serializers.SerializerMethodField()
+    # author = serializers.SerializerMethodField()
 
     class Meta:
         model = CommentContent
         fields = ['id', 'author', 'text']
 
-    @extend_schema_field(serializers.CharField())
-    def get_author(self, obj):
-        if obj.author.first_name and obj.author.last_name:
-            return f'{obj.author.first_name} {obj.author.last_name}'
-        return obj.author.username
+    # @extend_schema_field(serializers.CharField())
+    # def get_author(self, obj):
+    #     if obj.author.first_name and obj.author.last_name:
+    #         return f'{obj.author.first_name} {obj.author.last_name}'
+    #     return obj.author.username
 
     def create(self, validated_data):
         validated_data['author'] = self.context['request'].user
