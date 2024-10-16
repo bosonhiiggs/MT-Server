@@ -882,6 +882,18 @@ class FreeCourseCreateView(CreateAPIView):
         return Response(course_detail_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
+class CourseCreateView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseDetailSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.kwargs.get('slug')
+        course = Course.objects.filter(slug=instance).first()
+
+        serializer = self.get_serializer(course)
+        return Response(serializer.data)
+
+
 # Представление для получения и создания новых модулей
 @extend_schema(
     summary='Get a modules from course',
