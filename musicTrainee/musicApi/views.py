@@ -75,9 +75,10 @@ class CreateUserView(CreateAPIView):
                 email=serializer.validated_data['email'],
                 reset_code=generate_reset_code()
             )
+            email = confirm_request.email
             # Отправить письмо с инструкцией по сбросу пароля
-            send_confirm_code_email(confirm_request.email, confirm_request.reset_code)
-            return Response({'detail': 'Confirm code sent to email', },
+            send_confirm_code_email(email, confirm_request.reset_code)
+            return Response({'detail': 'Confirm code sent to email', 'email': email},
                             status=status.HTTP_201_CREATED)
 
         else:
