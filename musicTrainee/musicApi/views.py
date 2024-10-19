@@ -154,8 +154,9 @@ class LoginView(GenericAPIView):
             if user.is_activated:
                 login(request=request, user=user)
                 return Response({'success': 'Login in successfully'}, status=status.HTTP_200_OK)
-
+            print(f"Email confirm: {user.email}")
             old_confirm_request = PasswordResetRequest.objects.filter(email=user.email).last()
+            print(old_confirm_request)
             if old_confirm_request is not None:
                 send_confirm_code_email(old_confirm_request.email, old_confirm_request.reset_code)
                 return Response({'detail': 'Confirm code sent to email', 'email': old_confirm_request.email}, status=status.HTTP_201_CREATED)
