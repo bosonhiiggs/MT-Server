@@ -158,14 +158,14 @@ class LoginView(GenericAPIView):
             old_confirm_request = PasswordResetRequest.objects.filter(email=user.email).last()
             if old_confirm_request is not None:
                 send_confirm_code_email(old_confirm_request.email, old_confirm_request.reset_code)
-                return Response({'detail': 'Confirm code sent to email', }, status=status.HTTP_201_CREATED)
+                return Response({'detail': 'Confirm code sent to email', 'email': old_confirm_request.email}, status=status.HTTP_201_CREATED)
             else:
                 confirm_request = PasswordResetRequest.objects.create(
                     email=user.email,
                     reset_code=generate_reset_code()
                 )
                 send_confirm_code_email(confirm_request.email, confirm_request.reset_code)
-                return Response({'detail': 'Confirm code sent to email', }, status=status.HTTP_201_CREATED)
+                return Response({'detail': 'Confirm code sent to email', 'email': confirm_request.email}, status=status.HTTP_201_CREATED)
         else:
             return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
