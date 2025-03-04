@@ -9,7 +9,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir --upgrade pip poetry
 RUN poetry config virtualenvs.create false --local
 COPY poetry.lock pyproject.toml ./
-RUN poetry install
+RUN poetry install --no-root
 
 RUN poetry show
 
