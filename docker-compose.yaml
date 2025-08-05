@@ -15,13 +15,13 @@ services:
     env_file:
       - .env
     logging:
-#      driver: "json-file"
-#      options:
-#        max-file: "10"
-#        max-size: "200k"
-        driver: loki
-        options:
-          loki-url: http://localhost:3100/loki/api/v1/push
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "200k"
+#        driver: loki
+#        options:
+#          loki-url: http://localhost:3100/loki/api/v1/push
 #          Не работает, контейнер виснет при попытке остановки, потому что внутри контейнера нет соединения
 #          loki-url: http://host.docker.internal:3100/loki/api/v1/push
     volumes:
@@ -42,10 +42,10 @@ services:
     depends_on:
       - app
 
-    logging:
-      driver: loki
-      options:
-        loki-url: http://localhost:3100/loki/api/v1/push
+#    logging:
+#      driver: loki
+#      options:
+#        loki-url: http://localhost:3100/loki/api/v1/push
 
   grafana:
     image: grafana/grafana:9.5.2
