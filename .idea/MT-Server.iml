@@ -18,7 +18,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (MT-Server)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.10 virtualenv at ~/VSU/Projects/MT/MT-Server/venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">
